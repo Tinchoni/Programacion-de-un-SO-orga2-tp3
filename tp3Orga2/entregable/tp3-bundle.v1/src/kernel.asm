@@ -31,6 +31,8 @@ start:
     ; Deshabilitar interrupciones
     cli
 
+    xchg bx, bx
+
     ; Cambiar modo de video a 80 X 50
     ; ax = 1003h -> para poder tener 16 colores de background
     mov ax, 1003h
@@ -46,19 +48,18 @@ start:
     ; Habilitar A20
     
     ; Cargar la GDT
-    LGDT GDT_DESC
+
+    lgdt [GDT_DESC]
+    xchg bx, bx
+
 
     ; Setear el bit PE del registro CR0
-    MOV eax,cr0
-    OR eax,1
-    MOV cr0,eax
     
     ; Saltar a modo protegido
-    farJump: jmp 0x08:modoProtegido
 
+    jmp (diapo62 clase):modoProtegido
 
-    modoProtegido:
-        BITS 32
+    modoProtegido: 
     ; Establecer selectores de segmentos
 
     ; Establecer la base de la pila
