@@ -42,19 +42,21 @@ start:
     ; Imprimir mensaje de bienvenida
     print_text_rm start_rm_msg, start_rm_len, 0x07, 0, 0
     
-
+    xchg bx, bx
     ; Habilitar A20
     
     ; Cargar la GDT
-    LGDT GDT_DESC
+    lgdt GDT_DESC
 
     ; Setear el bit PE del registro CR0
-    MOV eax,cr0
-    OR eax,1
-    MOV cr0,eax
+    mov eax,cr0
+    or eax,1
+    mov cr0,eax
     
+    xchg bx, bx
+
     ; Saltar a modo protegido
-    farJump: jmp 0x08:modoProtegido
+    farJump: jmp 0x0070:modoProtegido
 
 
     modoProtegido:

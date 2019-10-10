@@ -27,14 +27,14 @@ gdt_entry gdt[GDT_COUNT] = { //la tabla gdt
     }
     //primer descriptor de segmento de codigo nivel 0
     [GDT_CODIGO_KERNEL] = (gdt_entry) {
-        (uint16_t)    1010001100000000b,         /* limit[0:15]  */
+        (uint16_t)    0xA2FF,         /* limit[0:15]  */
         (uint16_t)    0x0000,         /* base[0:15]   */
         (uint8_t)     0x00,           /* base[23:16]  */
-        (uint8_t)     00001011b,      /* type = codigo execute/read, accesed = (basura de 4 bits) + 1011          */
+        (uint8_t)     0x08,           /* type = codigo execute-only = (basura de 4 bits) + 1000          */
         (uint8_t)     0x01,           /* s  = 1 SIEMPRE         */
         (uint8_t)     0x00,           /* dpl = 0, soy kernel          */
         (uint8_t)     0x01,           /* p = 1 SIEMPRE           */
-        (uint8_t)     0000b,           /* limit[16:19] */
+        (uint8_t)     0x00,           /* limit[16:19] */
         (uint8_t)     0x00,           /* avl          */
         (uint8_t)     0x00,           /* l = 0 , estamos en 32b          */
         (uint8_t)     0x01,           /* db = 1, voy a usar este segmento cuando pase a modo protegido.          */
@@ -43,14 +43,14 @@ gdt_entry gdt[GDT_COUNT] = { //la tabla gdt
     }
 
     [GDT_CODIGO_USUARIO] = (gdt_entry) {
-        (uint16_t)    1010001100000000b,         /* limit[0:15]  */
+        (uint16_t)    0xA2FF,         /* limit[0:15]  */
         (uint16_t)    0x0000,         /* base[0:15]   */
         (uint8_t)     0x00,           /* base[23:16]  */
-        (uint8_t)     00001011b,      /* type = codigo execute/read, accesed = (basura de 4 bits) + 1011          */
+        (uint8_t)     0x08,           /* type = codigo execute/read, accesed = (basura de 4 bits) + 1011          */
         (uint8_t)     0x01,           /* s  = 1 SIEMPRE         */
         (uint8_t)     0x03,           /* dpl = 3, soy usuario, alto gil          */
         (uint8_t)     0x01,           /* p = 1 SIEMPRE           */
-        (uint8_t)     0000b,           /* limit[16:19] */
+        (uint8_t)     0x00,           /* limit[16:19] */
         (uint8_t)     0x00,           /* avl          */
         (uint8_t)     0x00,           /* l = 0 , estamos en 32b          */
         (uint8_t)     0x01,           /* db = 1, voy a usar este segmento cuando pase a modo protegido.          */
@@ -59,14 +59,14 @@ gdt_entry gdt[GDT_COUNT] = { //la tabla gdt
     }
 
     [GDT_DATOS_KERNEL] = (gdt_entry) {
-        (uint16_t)    1010001100000000b,         /* limit[0:15]  */
+        (uint16_t)    0xA2FF,         /* limit[0:15]  */
         (uint16_t)    0x0000,         /* base[0:15]   */
         (uint8_t)     0x00,           /* base[23:16]  */
-        (uint8_t)     00000011b,      /* type = data read/write, accesed = (basura de 4 bits) + 0011          */
+        (uint8_t)     0x02,      /* type = data read/write = (basura de 4 bits) + 0010          */
         (uint8_t)     0x01,           /* s  = 1 SIEMPRE         */
         (uint8_t)     0x00,           /* dpl = 0, soy kernel, alto no gil          */
         (uint8_t)     0x01,           /* p = 1 SIEMPRE           */
-        (uint8_t)     0000b,           /* limit[16:19] */
+        (uint8_t)     0x00,           /* limit[16:19] */
         (uint8_t)     0x00,           /* avl          */
         (uint8_t)     0x00,           /* l = 0 , estamos en 32b          */
         (uint8_t)     0x01,           /* db = 1, voy a usar este segmento cuando pase a modo protegido.          */
@@ -75,14 +75,14 @@ gdt_entry gdt[GDT_COUNT] = { //la tabla gdt
     }
 
     [GDT_DATOS_USUARIO] = (gdt_entry) {
-        (uint16_t)    1010001100000000b,         /* limit[0:15]  */
+        (uint16_t)    0xA2FF,         /* limit[0:15]  */
         (uint16_t)    0x0000,         /* base[0:15]   */
         (uint8_t)     0x00,           /* base[23:16]  */
-        (uint8_t)     00000011b,      /* type = data read/write, accesed = (basura de 4 bits) + 0011          */
+        (uint8_t)     0x02,      /* type = data read/write, accesed = (basura de 4 bits) + 0011          */
         (uint8_t)     0x01,           /* s  = 1 SIEMPRE         */
         (uint8_t)     0x03,           /* dpl = 3, soy usuario, alto  gil          */
         (uint8_t)     0x01,           /* p = 1 SIEMPRE           */
-        (uint8_t)     0000b,           /* limit[16:19] */
+        (uint8_t)     0x00,           /* limit[16:19] */
         (uint8_t)     0x00,           /* avl          */
         (uint8_t)     0x00,           /* l = 0 , estamos en 32b          */
         (uint8_t)     0x01,           /* db = 1, voy a usar este segmento cuando pase a modo protegido.          */
