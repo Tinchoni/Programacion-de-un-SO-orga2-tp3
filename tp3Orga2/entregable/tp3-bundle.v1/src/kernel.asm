@@ -4,6 +4,7 @@
 ; ==============================================================================
 
 %include "print.mac"
+%define C_BG_LIGHT_MAGENTA 0x0D0D
 
 global start
 
@@ -42,18 +43,17 @@ start:
     ; Imprimir mensaje de bienvenida
     print_text_rm start_rm_msg, start_rm_len, 0x07, 0, 0
     
-    xchg bx, bx
     ; Habilitar A20
     
     ; Cargar la GDT
-    lgdt GDT_DESC
+    lgdt [GDT_DESC]
 
     ; Setear el bit PE del registro CR0
     mov eax,cr0
     or eax,1
     mov cr0,eax
     
-    xchg bx, bx
+    
 
     ; Saltar a modo protegido
     farJump: jmp 0x0070:modoProtegido
@@ -62,13 +62,31 @@ start:
     modoProtegido:
         BITS 32
     ; Establecer selectores de segmentos
+    mov ax, 0x0080
+    mov ss, ax    ;selector de segmento de la pila
+
+    mov ax, 0x0090
+    mov es, ax     ;selector de segmento para la pantalla
 
     ; Establecer la base de la pila
+    mov esp, 0x0002B000
     
     ; Imprimir mensaje de bienvenida
 
     ; Inicializar pantalla
     
+    xchg bx, bx
+    mov eax, 0
+    .limpiarPantalla:
+        cmp eax, 8000
+        je .finLimpiarPantalla
+        mov word [es:eax], C_BG_LIGHT_MAGENTA
+        add eax, 2
+        jmp .limpiarPantalla
+
+    .finLimpiarPantalla:
+
+
     ; Inicializar el manejador de memoria
  
     ; Inicializar el directorio de paginas

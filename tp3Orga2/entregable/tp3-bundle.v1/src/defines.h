@@ -31,10 +31,11 @@
 #define GDT_COUNT 30
 
 #define GDT_IDX_NULL_DESC           0
-#define GDT_CODIGO_KERNEL           14
-#define GDT_CODIGO_USUARIO          15
-#define GDT_DATOS_KERNEL            16
-#define GDT_DATOS_USUARIO           17
+#define GDT_CODIGO_KERNEL 			14
+#define GDT_CODIGO_USUARIO 			15
+#define GDT_DATOS_KERNEL 			16
+#define GDT_DATOS_USUARIO 			17
+#define GDT_PANTALLA_KERNEL  		18
 
 /* Offsets en la gdt */
 /* -------------------------------------------------------------------------- */

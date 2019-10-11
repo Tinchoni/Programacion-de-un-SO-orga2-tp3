@@ -24,7 +24,7 @@ gdt_entry gdt[GDT_COUNT] = { //la tabla gdt
         (uint8_t)     0x00,           /* db           */
         (uint8_t)     0x00,           /* g            */
         (uint8_t)     0x00,           /* base[31:24]  */
-    }
+    },
     //primer descriptor de segmento de codigo nivel 0
     [GDT_CODIGO_KERNEL] = (gdt_entry) {
         (uint16_t)    0xA2FF,         /* limit[0:15]  */
@@ -40,7 +40,7 @@ gdt_entry gdt[GDT_COUNT] = { //la tabla gdt
         (uint8_t)     0x01,           /* db = 1, voy a usar este segmento cuando pase a modo protegido.          */
         (uint8_t)     0x01,           /* g = 1, son 163mb, necesito apuntar de a 4kb            */
         (uint8_t)     0x00,           /* base[31:24]  */
-    }
+    },
 
     [GDT_CODIGO_USUARIO] = (gdt_entry) {
         (uint16_t)    0xA2FF,         /* limit[0:15]  */
@@ -56,7 +56,7 @@ gdt_entry gdt[GDT_COUNT] = { //la tabla gdt
         (uint8_t)     0x01,           /* db = 1, voy a usar este segmento cuando pase a modo protegido.          */
         (uint8_t)     0x01,           /* g = 1, son 163mb, necesito apuntar de a 4kb            */
         (uint8_t)     0x00,           /* base[31:24]  */
-    }
+    },
 
     [GDT_DATOS_KERNEL] = (gdt_entry) {
         (uint16_t)    0xA2FF,         /* limit[0:15]  */
@@ -72,7 +72,7 @@ gdt_entry gdt[GDT_COUNT] = { //la tabla gdt
         (uint8_t)     0x01,           /* db = 1, voy a usar este segmento cuando pase a modo protegido.          */
         (uint8_t)     0x01,           /* g = 1, son 163mb, necesito apuntar de a 4kb            */
         (uint8_t)     0x00,           /* base[31:24]  */
-    }
+    },
 
     [GDT_DATOS_USUARIO] = (gdt_entry) {
         (uint16_t)    0xA2FF,         /* limit[0:15]  */
@@ -88,7 +88,23 @@ gdt_entry gdt[GDT_COUNT] = { //la tabla gdt
         (uint8_t)     0x01,           /* db = 1, voy a usar este segmento cuando pase a modo protegido.          */
         (uint8_t)     0x01,           /* g = 1, son 163mb, necesito apuntar de a 4kb            */
         (uint8_t)     0x00,           /* base[31:24]  */
+    },
+    [GDT_PANTALLA_KERNEL] = (gdt_entry) {
+        (uint16_t)    0x0001,         /* limit[0:15]  */
+        (uint16_t)    0x8000,         /* base[0:15]   */
+        (uint8_t)     0x0B,           /* base[23:16]  */
+        (uint8_t)     0x02,           /* type = data read/write, accesed = (basura de 4 bits) + 0011          */
+        (uint8_t)     0x01,           /* s  = 1 SIEMPRE         */
+        (uint8_t)     0x00,           /* dpl = 0, soy kernel          */
+        (uint8_t)     0x01,           /* p = 1 SIEMPRE           */
+        (uint8_t)     0x00,           /* limit[16:19] */
+        (uint8_t)     0x00,           /* avl          */
+        (uint8_t)     0x00,           /* l = 0 , estamos en 32b          */
+        (uint8_t)     0x01,           /* db = 1, voy a usar este segmento cuando pase a modo protegido.          */
+        (uint8_t)     0x01,           /* g = 1, son 8kb, necesito apuntar de a 4kb            */
+        (uint8_t)     0x00,           /* base[31:24]  */  
     }
+
 };
 
 gdt_descriptor GDT_DESC = { // este es el gdtr de mierda 
