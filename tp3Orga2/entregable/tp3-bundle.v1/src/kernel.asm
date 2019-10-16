@@ -3,12 +3,36 @@
 ; TRABAJO PRACTICO 3 - System Programming - ORGANIZACION DE COMPUTADOR II - FCEN
 ; ==============================================================================
 
+
+;//void print(const char* text, uint32_t x, uint32_t y, uint8_t attr)
+
+;PRINT CABEZA HECHO POR DAVID
+;jmp chau
+;texto: db "sarasa liquida"
+;chau:
+;push (0x2 << 4) | 0x5
+;push 10
+;push 10
+;push texto
+;call print
+;add esp, 4*4
+
+;jmp $
+
+
 %include "print.mac"
-%define C_BG_LIGHT_MAGENTA 0x0D0D
+%define CARACTER_LIMPITO 32 << 8 | (0x2 << 4) | 0x5 
 
 global start
 
+extern pic_reset
+extern pic_enable
+extern IDT_DESC
 extern GDT_DESC
+extern idt_inicializar
+extern idt_init
+
+extern print
 
 ;; Saltear seccion de datos
 jmp start
@@ -62,7 +86,8 @@ start:
     modoProtegido:
         BITS 32
     ; Establecer selectores de segmentos
-    mov ax, 0x0080
+    mov ax, 16 << 3
+    mov ds, ax    ;selector de segmento de la datos
     mov ss, ax    ;selector de segmento de la pila
 
     mov ax, 0x0090
@@ -75,12 +100,11 @@ start:
 
     ; Inicializar pantalla
     
-    xchg bx, bx
     mov eax, 0
     .limpiarPantalla:
         cmp eax, 8000
         je .finLimpiarPantalla
-        mov word [es:eax], C_BG_LIGHT_MAGENTA
+        mov word [es:eax], CARACTER_LIMPITO
         add eax, 2
         jmp .limpiarPantalla
 
@@ -102,13 +126,22 @@ start:
     ; Inicializar el scheduler
 
     ; Inicializar la IDT
-    
-    ; Cargar IDT
- 
-    ; Configurar controlador de interrupciones
+    call idt_inicializar
 
+    ; Cargar IDT
+    lidt [IDT_DESC]
+    
+    ;test excepcion dividir por 0
+    ;mov eax, 0
+    ;div eax
+
+    ; Configurar controlador de interrupciones
+    call pic_reset ; remapeo el PIC
+    call pic_enable ;prendo el PIC
+    sti ;habilito de vuelta interrupciones
     ; Cargar tarea inicial
 
+    jmp $
     ; Habilitar interrupciones
 
     ; Saltar a la primera tarea: Idle

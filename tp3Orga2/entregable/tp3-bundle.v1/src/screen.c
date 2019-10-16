@@ -7,7 +7,7 @@
 
 #include "screen.h"
 
-void print(const char* text, uint32_t x, uint32_t y, uint16_t attr) {
+void print(const char* text, uint32_t x, uint32_t y, uint8_t attr) {
     ca (*p)[VIDEO_COLS] = (ca (*)[VIDEO_COLS]) VIDEO; // magia
     int32_t i;
     for (i = 0; text[i] != 0; i++) {
@@ -21,7 +21,50 @@ void print(const char* text, uint32_t x, uint32_t y, uint16_t attr) {
     }
 }
 
-void print_dec(uint32_t numero, uint32_t size, uint32_t x, uint32_t y, uint16_t attr) {
+void print_number (uint8_t code){
+    
+    print_dec((uint32_t)code, 1, 10, 10, ((0x0 << 4) | 0x7) );
+}
+
+void print_exception(uint8_t ex_number){
+    char* excepciones_msgs[34];
+    excepciones_msgs[0]= "Divide-by-zero Error";
+    excepciones_msgs[1]= "Debug";
+    excepciones_msgs[2]= "Non-maskable Interrupt";
+    excepciones_msgs[3]= "Breakpoint";
+    excepciones_msgs[4]= "Overflow";
+    excepciones_msgs[5]= "Bound Range Exceeded";
+    excepciones_msgs[6]= "Invalid Opcode";
+    excepciones_msgs[7]= "Device Not Available";
+    excepciones_msgs[8]= "Double Fault, estas en las malas papa";
+    excepciones_msgs[9]= "Coprocessor Segment Overrun";
+    excepciones_msgs[10]= "Invalid TSS";
+    excepciones_msgs[11]= "Segment Not Present";
+    excepciones_msgs[12]= "Stack-Segment Fault";
+    excepciones_msgs[13]= "General Protection Fault";
+    excepciones_msgs[14]= "Page Fault";
+    excepciones_msgs[15]= "Reserved, no tocar";
+    excepciones_msgs[16]= "x87 Floating-Point Exception";
+    excepciones_msgs[17]= "Alignment Check";
+    excepciones_msgs[18]= "Machine Check";
+    excepciones_msgs[19]= "SIMD Floating-Point Exception";
+    excepciones_msgs[20]= "Virtualization Exception";
+    excepciones_msgs[21]= "Reserved";
+    excepciones_msgs[22]= "Reserved";
+    excepciones_msgs[23]= "Reserved";
+    excepciones_msgs[24]= "Reserved";
+    excepciones_msgs[25]= "Reserved";
+    excepciones_msgs[26]= "Reserved";
+    excepciones_msgs[27]= "Reserved";
+    excepciones_msgs[28]= "Reserved";
+    excepciones_msgs[29]= "Reserved, puto";
+    excepciones_msgs[30]= "Security Exception";
+    excepciones_msgs[31]= "Reserved, tipeas vos?";
+    
+    print(excepciones_msgs[ex_number], 10, 10, ((0x0 << 4) | 0x7) );
+}
+
+void print_dec(uint32_t numero, uint32_t size, uint32_t x, uint32_t y, uint8_t attr) {
     ca (*p)[VIDEO_COLS] = (ca (*)[VIDEO_COLS]) VIDEO; // magia
     uint32_t i;
     uint8_t letras[16] = "0123456789";
@@ -34,7 +77,7 @@ void print_dec(uint32_t numero, uint32_t size, uint32_t x, uint32_t y, uint16_t 
     }
 }
 
-void print_hex(uint32_t numero, int32_t size, uint32_t x, uint32_t y, uint16_t attr) {
+void print_hex(uint32_t numero, int32_t size, uint32_t x, uint32_t y, uint8_t attr) {
     ca (*p)[VIDEO_COLS] = (ca (*)[VIDEO_COLS]) VIDEO; // magia
     int32_t i;
     uint8_t hexa[8];
