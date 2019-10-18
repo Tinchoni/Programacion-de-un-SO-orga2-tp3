@@ -31,6 +31,7 @@ extern IDT_DESC
 extern GDT_DESC
 extern idt_inicializar
 extern idt_init
+extern mmu_initKernelDir
 
 extern print
 
@@ -112,12 +113,19 @@ start:
 
 
     ; Inicializar el manejador de memoria
- 
-    ; Inicializar el directorio de paginas
     
+
+    ; Inicializar el directorio de paginas
+    call mmu_initKernelDir
+
     ; Cargar directorio de paginas
+    mov eax, KERNEL_PAGE_DIR
+    mov cr3, eax
 
     ; Habilitar paginacion
+    mov eax, cr0
+    or eax, (1 << 31)
+    mov cr0, eax
     
     ; Inicializar tss
 

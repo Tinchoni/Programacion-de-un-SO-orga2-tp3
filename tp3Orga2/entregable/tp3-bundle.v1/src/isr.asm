@@ -88,11 +88,6 @@ global _isr33
 _isr33:
     pushad ;preservamos TODES les registres
     in al, 0x60
-    ;xchg bx, bx
-    ;cmp al, 0x30
-    ;jl .salir
-    ;cmp al, 0x39
-    ;jg .salir
     push eax
     call print_number
     add esp, 4
