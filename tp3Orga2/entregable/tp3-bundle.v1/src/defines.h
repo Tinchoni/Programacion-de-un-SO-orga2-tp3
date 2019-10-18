@@ -63,7 +63,7 @@
 
 /* Direcciones fisicas de directorios y tablas de paginas del KERNEL */
 /* -------------------------------------------------------------------------- */
-#define KERNEL_PAGE_DIR          0x00027000
-#define KERNEL_PAGE_TABLE_0      0x00028000
+//#define KERNEL_PAGE_DIR          0x00027000
+//#define KERNEL_PAGE_TABLE_0      0x00028000
 
 #endif  /* !__DEFINES_H__ */

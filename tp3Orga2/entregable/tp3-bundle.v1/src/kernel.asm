@@ -32,6 +32,7 @@ extern GDT_DESC
 extern idt_inicializar
 extern idt_init
 extern mmu_initKernelDir
+extern KERNEL_PAGE_DIR
 
 extern print
 
@@ -119,13 +120,14 @@ start:
     call mmu_initKernelDir
 
     ; Cargar directorio de paginas
-    mov eax, KERNEL_PAGE_DIR
+    mov eax, 0x2B000
     mov cr3, eax
 
     ; Habilitar paginacion
     mov eax, cr0
     or eax, (1 << 31)
     mov cr0, eax
+    xchg bx, bx
     
     ; Inicializar tss
 

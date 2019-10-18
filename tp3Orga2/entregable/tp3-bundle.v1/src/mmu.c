@@ -26,7 +26,8 @@ uint32_t mmu_initKernelDir() {
 	pde *dir = (pde *) KERNEL_PAGE_DIR;
 	for(int i = 0; i < PAGE_DIRECTORY_SIZE; i++) {
 		//inicializo cada entrada de la page directory con un page directory entry nulo
-		dir[i] = (pde)(0);
+		//dir[i] = (pde)(0);
+		dir[i].present = 0;
 	}	
 	dir[0].present = 1;
     dir[0].readwrite = 1;
