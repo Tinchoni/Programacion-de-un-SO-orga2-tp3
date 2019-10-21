@@ -14,13 +14,13 @@
 #define IDT_ENTRY(numero)                                                                          \
     idt[numero].offset_0_15 = (uint16_t) ((uint32_t)(&_isr ## numero) & (uint32_t) 0xFFFF);        \
     idt[numero].segsel = (uint16_t) GDT_CODIGO_KERNEL << 3;                                                          \
-    idt[numero].attr = (uint16_t) 0x8E00;                                                          \
+    idt[numero].attr = (uint16_t) 0x8E00; // la parte baja del gate descriptor es 1|00|01110|000|00000                                                         \
     idt[numero].offset_16_31 = (uint16_t) ((uint32_t)(&_isr ## numero) >> 16 & (uint32_t) 0xFFFF);
 
 #define IDT_ENTRY_DPL3(numero)                                                                          \
     idt[numero].offset_0_15 = (uint16_t) ((uint32_t)(&_isr ## numero) & (uint32_t) 0xFFFF);        \
     idt[numero].segsel = (uint16_t) GDT_CODIGO_KERNEL << 3;                                                          \
-    idt[numero].attr = (uint16_t) 0xEE00;                                                          \
+    idt[numero].attr = (uint16_t) 0xEE00; // la parte baja del gate descriptor es 1|11|01110|000|00000                                                          \
     idt[numero].offset_16_31 = (uint16_t) ((uint32_t)(&_isr ## numero) >> 16 & (uint32_t) 0xFFFF);
 
 

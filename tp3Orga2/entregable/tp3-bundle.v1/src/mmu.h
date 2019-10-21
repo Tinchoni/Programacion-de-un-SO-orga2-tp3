@@ -9,8 +9,8 @@
 #define __MMU_H__
 #define PAGE_DIRECTORY_SIZE 1024
 #define PAGE_TABLE_SIZE 1024
-#define KERNEL_PAGE_DIR 0x2B000
-#define KERNEL_PAGE_TABLE 0x2C000
+#define KERNEL_PAGE_DIR 0x2B000 // por consigna, no me mires
+#define KERNEL_PAGE_TABLE 0x2C000 //como el directorio empieza en 2B000 y ocupa 4k, es decir, ocupa 0x01000, la direccion de la tabla de paginas empieza 4k mas adelante, es decir, en 0x2C000
 
 
 #include "stdint.h"

@@ -70,48 +70,51 @@ start:
     print_text_rm start_rm_msg, start_rm_len, 0x07, 0, 0
     
     ; Habilitar A20
+    call A20_enable ;llamamos a una funcion implementada por la catedra.
     
     ; Cargar la GDT
-    lgdt [GDT_DESC]
+    lgdt [GDT_DESC] ;la direccion del gdtr.
 
     ; Setear el bit PE del registro CR0
     mov eax,cr0
-    or eax,1
-    mov cr0,eax
+    or eax,1 
+    mov cr0,eax ; ahora cr0 esta igual que antes salvo el bit menos significativo, que esta en 1.
     
     
 
     ; Saltar a modo protegido
-    farJump: jmp 0x0070:modoProtegido
+    farJump: jmp 0x0070:modoProtegido ; 0x0070 = 000000001110|0|00 pues privilegio=00, ti=0 e indice=14=0000 1110 (se lo extiende con 5 ceros en la parte mas significativa)
 
 
     modoProtegido:
-        BITS 32
-    ; Establecer selectores de segmentos
-    mov ax, 16 << 3
-    mov ds, ax    ;selector de segmento de la datos
-    mov ss, ax    ;selector de segmento de la pila
 
-    mov ax, 0x0090
+    BITS 32
+
+    ; Establecer selectores de segmentos
+    mov ax, 16 << 3 ; la entrada numero 16 de la gdt, que le corresponde al segmento GDT_DATOS_KERNEL.
+    mov ds, ax    ;selector de segmento de la datos
+    mov ss, ax    ;selector de segmento de la pila, comparten el mismo segmento.
+
+    mov ax, 18 << 3 ; o sea 0x0090, el segmento numero 18, es decir GDT_PANTALLA_KERNEL
     mov es, ax     ;selector de segmento para la pantalla
 
     ; Establecer la base de la pila
-    mov esp, 0x0002B000
+    mov esp, 0x0002B000 ; por consigna, a mi no me mires
     
     ; Imprimir mensaje de bienvenida
 
     ; Inicializar pantalla
     
     mov eax, 0
+
     .limpiarPantalla:
-        cmp eax, 8000
+        cmp eax, 8000 ; cuando llegamos a 80*50, ya procesamos todos los pixeles, so, chau
         je .finLimpiarPantalla
         mov word [es:eax], CARACTER_LIMPITO
-        add eax, 2
+        add eax, 2 ; porque cada pixel ocupa 2 bytes.
         jmp .limpiarPantalla
 
     .finLimpiarPantalla:
-
 
     ; Inicializar el manejador de memoria
     
@@ -120,12 +123,12 @@ start:
     call mmu_initKernelDir
 
     ; Cargar directorio de paginas
-    mov eax, 0x2B000
+    mov eax, 0x2B000 ; KEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE tuvimos que harcodearlo, revisar.
     mov cr3, eax
 
     ; Habilitar paginacion
     mov eax, cr0
-    or eax, (1 << 31)
+    or eax, (1 << 31) ; teniamos que modificar el bit mas significativo de los 32 bits de cr0.
     mov cr0, eax
     xchg bx, bx
     
@@ -134,6 +137,10 @@ start:
     ; Inicializar tss de la tarea Idle
 
     ; Inicializar el scheduler
+
+
+
+;---------------- CLASE 2---------------------------------
 
     ; Inicializar la IDT
     call idt_inicializar
@@ -149,6 +156,9 @@ start:
     call pic_reset ; remapeo el PIC
     call pic_enable ;prendo el PIC
     sti ;habilito de vuelta interrupciones
+
+;-------- fin clase 2?-------------------
+
     ; Cargar tarea inicial
 
     jmp $
