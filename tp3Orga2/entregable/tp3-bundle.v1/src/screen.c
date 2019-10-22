@@ -21,11 +21,15 @@ void print(const char* text, uint32_t x, uint32_t y, uint8_t attr) {
     }
 }
 
-void print_number (uint8_t code){
-    if(code > 0x0a || code < 0x02){
+void print_number (uint8_t code){ // la funcion utilizada para imprimir por pantalla las teclas 0 a 9
+    if(code > 0x0b || code < 0x02){
         return;
     }
-    print_dec((uint32_t)code - 1, 1, 10, 10, ((0x0 << 4) | 0x7) );
+    if(code == 0x0b) {
+        print_dec((uint32_t)0, 1, 10, 10, ((0x0 << 4) | 0x7) );
+    } else {
+        print_dec((uint32_t)code - 1, 1, 10, 10, ((0x0 << 4) | 0x7) );
+    }
 }
 
 void print_exception(uint8_t ex_number){

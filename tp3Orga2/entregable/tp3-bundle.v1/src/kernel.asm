@@ -19,9 +19,9 @@
 
 ;jmp $
 
-
 %include "print.mac"
-%define CARACTER_LIMPITO 32 << 8 | (0x2 << 4) | 0x5 
+%define CARACTER_LIMPITO 32 << 8 | (0x0 << 4) | 0x0
+%define KERNEL_PAGE_DIR 0x2B000 
 
 global start
 
@@ -32,7 +32,6 @@ extern GDT_DESC
 extern idt_inicializar
 extern idt_init
 extern mmu_initKernelDir
-extern KERNEL_PAGE_DIR
 
 extern print
 
@@ -47,6 +46,9 @@ start_rm_len equ    $ - start_rm_msg
 
 start_pm_msg db     'Iniciando kernel en Modo Protegido'
 start_pm_len equ    $ - start_pm_msg
+
+LU db 'Martin Mamani Aleman 630 17 Uriel Chami 157 17 Augusto Gonzalez Omahen 496/ 17'
+LU_size equ $ - LU
 
 ;;
 ;; Seccion de código.
@@ -68,7 +70,11 @@ start:
 
     ; Imprimir mensaje de bienvenida
     print_text_rm start_rm_msg, start_rm_len, 0x07, 0, 0
-    
+
+
+
+    ; ---------------------------- Clase 1 --------------------------------
+
     ; Habilitar A20
     call A20_enable ;llamamos a una funcion implementada por la catedra.
     
@@ -83,7 +89,7 @@ start:
     
 
     ; Saltar a modo protegido
-    farJump: jmp 0x0070:modoProtegido ; 0x0070 = 000000001110|0|00 pues privilegio=00, ti=0 e indice=14=0000 1110 (se lo extiende con 5 ceros en la parte mas significativa)
+    farJump: jmp 0x0070:modoProtegido ; 0x0070 = 000000001110|0|00 pues privilegio=00, ti=0 e indice=14=0000 1110 (se lo extiende con 5 ceros en la parte mas significativa). Era lo mismo que poner 14<<3.
 
 
     modoProtegido:
@@ -99,31 +105,48 @@ start:
     mov es, ax     ;selector de segmento para la pantalla
 
     ; Establecer la base de la pila
-    mov esp, 0x0002B000 ; por consigna, a mi no me mires
+    mov esp, 0x0002B000 ; por consigna, a mi no me mires. Haria falta el ebp tambien?
     
     ; Imprimir mensaje de bienvenida
+    print_text_pm start_pm_msg, start_pm_len, 0x07, 0, 0 ; uso la macro definida en print.mac, donde los parametros son un puntero al mensaje (start_pm_msg), la longitud del mensaje (start_pm_len), el color (0x07, es decir, C_BG_BLACK con C_FG_LIGHT_GREY) y la fila y columna (0,0).
 
     ; Inicializar pantalla
-    
     mov eax, 0
-
     .limpiarPantalla:
         cmp eax, 8000 ; cuando llegamos a 80*50, ya procesamos todos los pixeles, so, chau
         je .finLimpiarPantalla
         mov word [es:eax], CARACTER_LIMPITO
         add eax, 2 ; porque cada pixel ocupa 2 bytes.
         jmp .limpiarPantalla
-
     .finLimpiarPantalla:
 
+    ; Inicializar tablero e interfaz:
+    ; ACA IRIA TODO LO DEL TABLERO Y BLABLABLABLALBALBALBLALAL INTERFAZ MASA MADRE
+
+    ; ---------------------------- Fin Clase 1 --------------------------------
+
+
+
+    ; ------------------------------ Clase 4 --------------------------------
+
     ; Inicializar el manejador de memoria
-    
+    ; aca va call mmu_init AGUANTE LA MMU VIEJITAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+
+    ; ---------------------------- Fin Clase 4 --------------------------------
+
+
+
+    ; ------------------------------ Clase 3 --------------------------------
 
     ; Inicializar el directorio de paginas
     call mmu_initKernelDir
 
+    ; Imprimir numero de libreta de los integrantes:
+    print_text_pm LU, LU_size, 0x07, 0, 0 ; los parametros son los explicados mas arriba al imprimir el mensaje de bienvenida.
+
+
     ; Cargar directorio de paginas
-    mov eax, 0x2B000 ; KEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE tuvimos que harcodearlo, revisar.
+    mov eax, KERNEL_PAGE_DIR ; esto equivale a 0x2B000 por consigna.
     mov cr3, eax
 
     ; Habilitar paginacion
@@ -132,15 +155,23 @@ start:
     mov cr0, eax
     xchg bx, bx
     
+    ; ---------------------------- Fin Clase 3 --------------------------------
+
+
+
+    ; ------------------------------ Clase 5? --------------------------------
+    
     ; Inicializar tss
 
     ; Inicializar tss de la tarea Idle
 
     ; Inicializar el scheduler
 
+    ; ---------------------------- Fin Clase 5 --------------------------------
 
 
-;---------------- CLASE 2---------------------------------
+
+    ; ------------------------------ Clase 2 ---------------------------------
 
     ; Inicializar la IDT
     call idt_inicializar
@@ -157,12 +188,14 @@ start:
     call pic_enable ;prendo el PIC
     sti ;habilito de vuelta interrupciones
 
-;-------- fin clase 2?-------------------
+    ; ---------------------------- Fin Clase 2 --------------------------------
 
     ; Cargar tarea inicial
 
-    jmp $
+    jmp $ ; por que esta aca? que onda, pa mi hay que volarlo o ponerlo mas abajo (?)
+
     ; Habilitar interrupciones
+    sti 
 
     ; Saltar a la primera tarea: Idle
 
