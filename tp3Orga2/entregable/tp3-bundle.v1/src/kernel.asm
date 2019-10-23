@@ -33,6 +33,7 @@ extern idt_inicializar
 extern idt_init
 extern mmu_initKernelDir
 extern mmu_init
+extern mmu_initTaskDir
 
 extern print
 
@@ -186,6 +187,13 @@ start:
     call pic_reset ; remapeo el PIC
     call pic_enable ;prendo el PIC
     sti ;habilito de vuelta interrupciones
+
+    ;TEST
+
+    push 0
+    call mmu_initTaskDir
+    mov cr3, eax
+
 
     ; ---------------------------- Fin Clase 2 --------------------------------
 
