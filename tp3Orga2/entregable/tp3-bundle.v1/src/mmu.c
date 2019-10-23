@@ -7,19 +7,100 @@
 
 #include "mmu.h"
 
+//Estas variables son parte de los section de mmu.c
+// mmu.c pertenece al compilado final del tp que es kernel.bin
+// la catedra se ocupa de meter kernel.bin en memoria y nosotros
+// lo mapeamos con identity mapping, con lo cual, todo piola.
+uint32_t proxima_pagina_libre_kernel;
+uint32_t proxima_pagina_libre_task;
 
 void mmu_init() {
+	proxima_pagina_libre_kernel = INICIO_PAGINAS_LIBRES_KERNEL;
+	proxima_pagina_libre_task = INICIO_PAGINAS_LIBRES_TASK;
+}
+uint32_t mmu_nextFreeTaskPage() {
+	uint32_t pagina_libre = proxima_pagina_libre_task;
+	proxima_pagina_libre_task += PAGE_SIZE;
+	return pagina_libre;
 }
 
 uint32_t mmu_nextFreeKernelPage() {
-    return 0;
+	uint32_t pagina_libre = proxima_pagina_libre_kernel;
+	proxima_pagina_libre_kernel += PAGE_SIZE;
+	return pagina_libre;
 }
 
+// bit 1 de attrs == 1 => read/write
+// bit 1 de attrs == 0 => read only
+// bit 0 de attrs == 1 => user
+// bit 0 de attrs == 0 => supervisor
 void mmu_mapPage(uint32_t virtual, uint32_t cr3, uint32_t phy, uint32_t attrs) {
+	pde* dir = (pde*) ((cr3 >> 12) << 12); // cr3 = direccion base del directorio | ignored | ... |. En el tp toda la parte que no es direccion blabla esta en cero, pero en la vida real puede no serlo. So, limpiamos los primeros 12 bits.
+	uint32_t offset_pd = virtual >> 22; // la direccion virtual tiene, del bit 22 a 31, a offset_page_directory 
+	uint32_t offset_pt = (virtual << 10) >> 22; // la dir virtual tiene, del bit 12 a 21, a offset_page_table
+	pde pd_entry = dir[offset_pd];
+	//obtengo de attrs los bits 0 y 1 (los que necesito).
+	//bit 1
+	uint32_t attrs_readwrite = (attrs << 30) >> 31;
+	//bit 0
+	uint32_t attrs_usersupervisor = (attrs << 31) >> 31;
+
+
+	//si la pagina no esta mapeada aun, la mapeamos.
+	if(!pd_entry.present){
+		pte *nuevaTabla = (pte*) mmu_nextFreeKernelPage();
+		//inicializo una pt con todas sus entradas no presentes.
+		for(int i = 0; i < PAGE_TABLE_SIZE; i++) {
+			nuevaTabla[i].present = 0;
+		}	
+		
+		//Actualizo la pde que se condice con esta pagina
+		//poniendola presente y con el puntero a la pt que acabo de crear.
+		dir[offset_pd].present = 1;
+	    dir[offset_pd].readwrite = attrs_readwrite;
+	    dir[offset_pd].usersupervisor = attrs_usersupervisor;
+	    dir[offset_pd].pwt = 0;
+	    dir[offset_pd].pcd = 0;
+	    dir[offset_pd].accesed = 0;
+	    dir[offset_pd].ignored = 0;
+	    dir[offset_pd].ps = 0;
+	    dir[offset_pd].g = 0;
+	    dir[offset_pd].disponible = 0;
+	    dir[offset_pd].direccion_tabla_de_descriptores_de_paginas = ((uint32_t)nuevaTabla) >> 12;
+	}
+
+	uint32_t ptPointer = (pd_entry.direccion_tabla_de_descriptores_de_paginas >> 12) << 12;
+	pte *pt = (pte*) ptPointer;
+
+	//lleno la pte de la pagina que queria mapear con lo que necesitaba
+	//o sea, los atributos y la direccion fisica pedida (phy)
+	pt[offset_pt].present = 1;
+	pt[offset_pt].readwrite = attrs_readwrite;
+	pt[offset_pt].usersupervisor = attrs_usersupervisor;
+	pt[offset_pt].pwt = 0;
+	pt[offset_pt].pcd = 0;
+	pt[offset_pt].accesed = 0;
+	pt[offset_pt].dirtybit = 0;
+	pt[offset_pt].pat = 0;
+	pt[offset_pt].g = 0;
+	pt[offset_pt].disponible = 0;
+	pt[offset_pt].direccion_pagina = (phy >> 12);  // phy puede no ser multiplo de 4k, pero para que caiga en donde yo quiero la "divido" por 4k
+	
+	tlbflush(); // esto dice la catedra que lo hagamos. no se
 }
 
 uint32_t mmu_unmapPage(uint32_t virtual, uint32_t cr3) {
-    return 0;
+    pde* dir = (pde*) ((cr3 >> 12) << 12); // cr3 = direccion base del directorio | ignored | ... |. En el tp toda la parte que no es direccion blabla esta en cero, pero en la vida real puede no serlo. So, limpiamos los primeros 12 bits.
+	uint32_t offset_pd = virtual >> 22; // la direccion virtual tiene, del bit 22 a 31, a offset_page_directory 
+	uint32_t offset_pt = (virtual << 10) >> 22; // la dir virtual tiene, del bit 12 a 21, a offset_page_table
+	pde pd_entry = dir[offset_pd];
+
+    pte *pt = (pte*) ((pd_entry.direccion_tabla_de_descriptores_de_paginas >> 12) << 12);
+
+	//seteamos en 0 el bit present de la pte que apunta a la pagina que queremos desmapear
+	pt[offset_pt].present = 0;
+
+	return 0;
 }
 
 uint32_t mmu_initKernelDir() {
@@ -84,6 +165,83 @@ uint32_t mmu_initKernelDir() {
 
 
     return 0;
+}
+
+uint32_t obtenerPosicionDeMemoriaDeCodigo(uint32_t tipoDeTarea){
+	switch(tipoDeTarea){
+		case 0:
+			//Jugador A Tipo 1
+			return 0x10000;
+			break;
+		case 1:
+			//Jugador A Tipo 2
+			return 0x12000;
+			break;
+		case 2:
+			//Jugador A Tipo 3
+			return 0x14000;
+			break;
+		case 3:
+			//Jugador B Tipo 1
+			return 0x16000;
+			break;
+		case 4:
+			//Jugador B Tipo 2
+			return 0x18000;
+			break;
+		case 5:
+			//Jugador B Tipo 3
+			return 0x1A000;
+			break;
+	}
+	//para que siempre retorne algo esta funcion.
+	return 0;
+}
+
+//por ahora tipo de tarea es un numero de 0-5 donde 0 = Jugador A Tipo 1 ... 5 = Jugador B Tipo 3 (como en figura 2 de la consigna)
+void mmu_initTaskDir(uint32_t tipoDeTarea, uint32_t cr3Task){
+	//NO MIRO LA CONSIGNA PORQUE NO SE ENTIENDE QUIEN ES EL JUGADOR.
+
+	//vamos a hacer identity mapping de la memoria desde 0x00000 hasta 0x3FFFFF
+	//esta es la memoria del kernel
+	//y vamos a mapear la 0x08000000 y la 0x08001000 a una pagina libre del area de tareas correspondientemente
+	
+	uint32_t attrs_kernel = 0x1; //queremos ser supervisor y tener permiso read/write.
+	uint32_t attrs_user = 0x3; // queremos los bits userSupervisor y read/write en 1. 
+	//hay CANT_PAGINAS_KERNEL paginas en total, voy una por una
+	for(int i= 0; i < CANT_PAGINAS_KERNEL; i++){
+		mmu_mapPage(i << 12, cr3Task, i << 12, attrs_kernel); // i es el numero de pagina. i << 12 es la posicion de memoria del primer elemento de la i-esima pagina, mapeo esa, a esa misma, o sea, identity mapping.
+	}
+
+	
+	//ahora mapeo el codigo y la pila de la tarea.
+	uint32_t cr3Actual = (uint32_t)rcr3();
+
+	uint32_t nuevaPaginaDelAreaDeTareaCodigo = mmu_nextFreeTaskPage();
+	//mapeo la pagina a nivel kernel para poder escribirla con el codigo de la tarea en cuestion
+	mmu_mapPage(0x08002000, cr3Actual, nuevaPaginaDelAreaDeTareaCodigo, attrs_user);
+	//aca hay que usar tipoDeTarea y escribir nuevaPaginaDelAreaDeTareaCodigo con el codigo en cuestion
+
+	mmu_mapPage(0x08000000,cr3Task, nuevaPaginaDelAreaDeTareaCodigo, attrs_user);
+	
+	uint32_t nuevaPaginaDelAreaDeTareaPila = mmu_nextFreeTaskPage();
+	mmu_mapPage(0x08003000, cr3Actual, nuevaPaginaDelAreaDeTareaPila, attrs_user);
+
+	mmu_mapPage(0x08001000,cr3Task, nuevaPaginaDelAreaDeTareaPila, attrs_user);
+
+	//copio el codigo de la tarea en cuestion y su pila, a el codigo y pila que acabo de mapear.
+
+	// paginaALeer = un puntero a donde empieza la pagina de codigo de la tarea en cuestion. en la pagina siguiente va a estar la pagina de pila de esa tarea.
+	uint32_t *paginaALeer = (uint32_t*) obtenerPosicionDeMemoriaDeCodigo(tipoDeTarea);
+	uint32_t dosPaginas = 2048; //porque cada pagina tiene 1024 enteros de 32 bits, o lo que es lo mismo: 1024*4 = 4096 bytes.
+	uint32_t *paginaAEscribir = (uint32_t*) 0x08002000;
+	for(int i=0; i < dosPaginas; i++){
+		paginaAEscribir[i] = paginaALeer[i];
+	}
+
+	//desmapeo las direcciones "aux" que use para poder escribir en nuevaPaginaDelAreaDeTareaPila/nuevaPaginaDelAreaDeTareaCodigo
+	mmu_unmapPage(0x08002000, cr3Actual);
+	mmu_unmapPage(0x08003000, cr3Actual);
 }
 
 

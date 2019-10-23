@@ -32,6 +32,7 @@ extern GDT_DESC
 extern idt_inicializar
 extern idt_init
 extern mmu_initKernelDir
+extern mmu_init
 
 extern print
 
@@ -47,7 +48,7 @@ start_rm_len equ    $ - start_rm_msg
 start_pm_msg db     'Iniciando kernel en Modo Protegido'
 start_pm_len equ    $ - start_pm_msg
 
-LU db 'Martin Mamani Aleman 630 17 Uriel Chami 157 17 Augusto Gonzalez Omahen 496/ 17'
+LU db '630/17, 157/17, 496/17'
 LU_size equ $ - LU
 
 ;;
@@ -130,8 +131,7 @@ start:
     ; ------------------------------ Clase 4 --------------------------------
 
     ; Inicializar el manejador de memoria
-    ; aca va call mmu_init AGUANTE LA MMU VIEJITAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-
+    call mmu_init
     ; ---------------------------- Fin Clase 4 --------------------------------
 
 
@@ -153,7 +153,6 @@ start:
     mov eax, cr0
     or eax, (1 << 31) ; teniamos que modificar el bit mas significativo de los 32 bits de cr0.
     mov cr0, eax
-    xchg bx, bx
     
     ; ---------------------------- Fin Clase 3 --------------------------------
 

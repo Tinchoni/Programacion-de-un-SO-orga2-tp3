@@ -11,7 +11,10 @@
 #define PAGE_TABLE_SIZE 1024
 #define KERNEL_PAGE_DIR 0x2B000 // por consigna, no me mires
 #define KERNEL_PAGE_TABLE 0x2C000 //como el directorio empieza en 2B000 y ocupa 4k, es decir, ocupa 0x01000, la direccion de la tabla de paginas empieza 4k mas adelante, es decir, en 0x2C000
-
+#define PAGE_SIZE 4096
+#define INICIO_PAGINAS_LIBRES_KERNEL 0x100000
+#define INICIO_PAGINAS_LIBRES_TASK 0x400000
+#define CANT_PAGINAS_KERNEL 1024
 
 #include "stdint.h"
 #include "defines.h"

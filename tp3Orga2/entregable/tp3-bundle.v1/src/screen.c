@@ -25,11 +25,11 @@ void print_number (uint8_t code){ // la funcion utilizada para imprimir por pant
     if(code > 0x0b || code < 0x02){
         return;
     }
-    if(code == 0x0b) {
-        print_dec((uint32_t)0, 1, 10, 10, ((0x0 << 4) | 0x7) );
-    } else {
-        print_dec((uint32_t)code - 1, 1, 10, 10, ((0x0 << 4) | 0x7) );
+    uint32_t number = 0;
+    if(code != 0x0b) {
+        number = (uint32_t)code - 1;
     }
+    print_dec(number, 1, 79, 0, ((0x0 << 4) | 0x7) );
 }
 
 void print_exception(uint8_t ex_number){
