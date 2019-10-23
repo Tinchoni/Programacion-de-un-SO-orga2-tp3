@@ -112,10 +112,11 @@ void screen_drawBox(uint32_t fInit,
     uint32_t f;
     uint32_t c;
     for (f = fInit; f < fInit+fSize; f++) {
-    for (c = cInit; c < cInit+cSize; c++) {
-          p[f][c].c = character;
-          p[f][c].a = attr;
-    }}
+        for (c = cInit; c < cInit+cSize; c++) {
+              p[f][c].c = character;
+              p[f][c].a = attr;
+        }
+    }
 }
 
 

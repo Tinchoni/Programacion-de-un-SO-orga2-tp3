@@ -29,6 +29,7 @@ extern pic_reset
 extern pic_enable
 extern IDT_DESC
 extern GDT_DESC
+extern screen_drawBox
 extern idt_inicializar
 extern idt_init
 extern mmu_initKernelDir
@@ -51,6 +52,11 @@ start_pm_len equ    $ - start_pm_msg
 
 LU db '630/17, 157/17, 496/17'
 LU_size equ $ - LU
+
+puntos_msg db 'Puntos:'
+puntos_len equ $ - puntos_msg
+pelotas_msg db 'Pelotas:'
+pelotas_len equ $ - pelotas_msg
 
 ;;
 ;; Seccion de código.
@@ -121,9 +127,70 @@ start:
         add eax, 2 ; porque cada pixel ocupa 2 bytes.
         jmp .limpiarPantalla
     .finLimpiarPantalla:
+    
+    ; quiero imprimir un area gris (C_FG_DARK_GREY y C_BG_DARK_GREY, o sea que el atributo es 0x88) en las primeras 40 filas, desde la columna 1 hasta la 79.
+    push 0x88 ; attr
+    push 0x32 ; character, cualquiera, total se pinta gris (?). es invisible.
+    push 78   ; cSize
+    push 40   ; fSize, termina en la fila 39.
+    push 1    ; cInit
+    push 0    ; fInit
+    call screen_drawBox ; screen_drawBox(0, 1, 40, 78, 0x32, 0x88)
 
-    ; Inicializar tablero e interfaz:
-    ; ACA IRIA TODO LO DEL TABLERO Y BLABLABLABLALBALBALBLALAL INTERFAZ MASA MADRE
+    ; ahora quiero imprimir unos marcos negros (atributo 0x00) para los puntajes y demas. Para eso, imprimo un solo rectangulo negro y despues piso lo necesario y ahi quedan los marcos negros.
+    push 0x00 ; attr
+    push 0x32 ; character
+    push 80   ; cSize
+    push 10   ; fSize
+    push 0    ; cInit
+    push 40    ; fInit, empieza en la fila 40
+    call screen_drawBox ; screen_drawBox(40, 0, 10, 80, 0x32, 0x00)
+
+    ; ahora imprimo dos rectangulos, uno rojo y otro azul (atributos 0x44 y 0x11)
+    push 0xCC ; attr
+    push 0x32 ; character, cualquiera, total se pinta gris (?). es invisible.
+    push 38   ; cSize
+    push 8   ; fSize
+    push 1    ; cInit
+    push 41    ; fInit
+    call screen_drawBox ; screen_drawBox(41, 1, 8, 38, 0x32, 0xCC)
+
+    push 0x99 ; attr
+    push 0x32 ; character, cualquiera, total se pinta gris (?). es invisible.
+    push 38   ; cSize
+    push 8   ; fSize
+    push 41    ; cInit
+    push 41    ; fInit
+    call screen_drawBox ; screen_drawBox(41, 41, 8, 38, 0x32, 0x99)
+
+    ; ahora imprimo a los 2 jugadores (los jugadores van desde las filas 17 inclusive a 23 inclusive, tamaño 7 porque pinto).
+    push 0xCC ; attr
+    push 0x32 ; character, cualquiera, total se pinta gris (?). es invisible.
+    push 1   ; cSize
+    push 7   ; fSize
+    push 0    ; cInit
+    push 17    ; fInit
+    call screen_drawBox ; screen_drawBox(17, 0, 7, 1, 0x32, 0xCC)
+
+    push 0x99 ; attr
+    push 0x32 ; character, cualquiera, total se pinta gris (?). es invisible.
+    push 1   ; cSize
+    push 7   ; fSize
+    push 79    ; cInit
+    push 17    ; fInit
+    call screen_drawBox ; screen_drawBox(17, 0, 7, 1, 0x32, 0xCC)
+
+    ; imprimo Puntos, Pelotas.
+    print_text_pm puntos_msg, puntos_len, 0xF0, 42, 2 ; puntero al mensaje (puntos_msg), longitud del mensaje (puntos_len), color (0xF0, es decir, C_BG_WHITE y C_FG_BLACK), fila y columna (0,0).
+    print_text_pm pelotas_msg, pelotas_len, 0xF0, 43, 2
+
+    print_text_pm puntos_msg, puntos_len, 0xF0, 42, 42 
+    print_text_pm pelotas_msg, pelotas_len, 0xF0, 43, 42
+
+    ; el resto deberia ser hecho/actualizado por alguna tarea.
+    ; de hecho, imprimir los puntos y las pelotas no es parte del ejercicio 1. Lo dejo porque despues va a servir como molde, pero va a volar
+
+    ; xchg bx, bx
 
     ; ---------------------------- Fin Clase 1 --------------------------------
 
