@@ -205,7 +205,7 @@ uint32_t mmu_initTaskDir(uint32_t tipoDeTarea){
 	//esta es la memoria del kernel
 	//y vamos a mapear la 0x08000000 y la 0x08001000 a una pagina libre del area de tareas correspondientemente
 	
-	uint32_t cr3Task = mmu_nextFreeKernelPage();
+	uint32_t cr3Task = mmu_nextFreeKernelPage();  // cada tarea tiene su propio page directory y sus propios pde, pte, bla.
 
 	uint32_t attrs_kernel = 0x1; //queremos ser supervisor y tener permiso read/write.
 	uint32_t attrs_user = 0x3; // queremos los bits userSupervisor y read/write en 1. 
@@ -214,32 +214,36 @@ uint32_t mmu_initTaskDir(uint32_t tipoDeTarea){
 		mmu_mapPage(i << 12, cr3Task, i << 12, attrs_kernel); // i es el numero de pagina. i << 12 es la posicion de memoria del primer elemento de la i-esima pagina, mapeo esa, a esa misma, o sea, identity mapping.
 	}
 
+	// los directorios de las tareas viven en el area del kernel, por eso le pido memoria a kernel mediante mmu_nextFreeKernelPage().
+	// en cr3Task vamos a inicializar el directorio de esta nueva tarea que llego por parametro (tipoDeTarea).
 
 	//ahora mapeo el codigo y la pila de la tarea.
-	uint32_t cr3Actual = (uint32_t)rcr3();
+	uint32_t cr3Actual = (uint32_t)rcr3(); // "read cr3"
 
-	uint32_t nuevaPaginaDelAreaDeTareaCodigo = mmu_nextFreeTaskPage();
+	uint32_t nuevaPaginaDelAreaDeTareaCodigo = mmu_nextFreeTaskPage(); // nos da una paginita del area libre de tareas
+	// mapeo nuevaPaginaDelAreaDeTareaCodigo con los dos cr3 (actual y task)
 	//mapeo la pagina a nivel kernel para poder escribirla con el codigo de la tarea en cuestion
-	mmu_mapPage(0x08002000, cr3Actual, nuevaPaginaDelAreaDeTareaCodigo, attrs_user);
+	mmu_mapPage(0x08002000, cr3Actual, nuevaPaginaDelAreaDeTareaCodigo, attrs_user); // es auxiliar porque sino no puedo escribir ni leer nuevaPaginaDelAreaDeTareaCodigo porque no la tengo en mi directorio. Por eso uso cr3Actual
 	//aca hay que usar tipoDeTarea y escribir nuevaPaginaDelAreaDeTareaCodigo con el codigo en cuestion
-
 	mmu_mapPage(0x08000000,cr3Task, nuevaPaginaDelAreaDeTareaCodigo, attrs_user);
 	
-	uint32_t nuevaPaginaDelAreaDeTareaPila = mmu_nextFreeTaskPage();
-	mmu_mapPage(0x08003000, cr3Actual, nuevaPaginaDelAreaDeTareaPila, attrs_user);
 
+	// ahora hago lo mismo con la otra pagina (para la pila) con los dos cr3
+	uint32_t nuevaPaginaDelAreaDeTareaPila = mmu_nextFreeTaskPage();
+	mmu_mapPage(0x08003000, cr3Actual, nuevaPaginaDelAreaDeTareaPila, attrs_user); // es auxiliar porque sino no puedo escribir ni leer nuevaPaginaDelAreaDeTareaPila porque no la tengo en mi directorio. Por eso uso cr3Actual
 	mmu_mapPage(0x08001000,cr3Task, nuevaPaginaDelAreaDeTareaPila, attrs_user);
 
-	//copio el codigo de la tarea en cuestion y su pila, a el codigo y pila que acabo de mapear.
+
+	// nos contaron "hablado" que hay que copiar el codigo de la tarea (que esta en el kernel) a la posicion mapeada 0x08002000 (que es la posicion que mira cr3Actual) pero en el fondo estamos copiando en la direccion virtual 0x08000000 de cr3Task
+	//copio el codigo de la tarea en cuestion y su pila, al codigo y pila que acabo de mapear.
 
 	// paginaALeer = un puntero a donde empieza la pagina de codigo de la tarea en cuestion. en la pagina siguiente va a estar la pagina de pila de esa tarea.
-	breakpoint();
-	//CRASHEA EN LA LINEA uint32_t *paginaALeer = (uint32_t*) obtenerPosicionDeMemoriaDeCodigo(tipoDeTarea); NO TENEMOS IDEA DE POR QUE. 
-	uint32_t *paginaALeer = (uint32_t*) obtenerPosicionDeMemoriaDeCodigo(tipoDeTarea);
+
+	uint32_t *paginaALeer = (uint32_t*) obtenerPosicionDeMemoriaDeCodigo(tipoDeTarea); // es un pedacito del area de memoria del kernel. Es una direccion virtual que resulta igual a la fisica por identity mapping del area del kernel.
 	uint32_t dosPaginas = 2048; //porque cada pagina tiene 1024 enteros de 32 bits, o lo que es lo mismo: 1024*4 = 4096 bytes.
-	uint32_t *paginaAEscribir = (uint32_t*) 0x08002000;
+	uint32_t *paginaAEscribir = (uint32_t*) 0x08002000; // el area donde empieza lo mappeado "auxiliarmente", en posicion fisica es nuevaPaginaDelAreaDeTareaCodigo
 	for(int i=0; i < dosPaginas; i++){
-		paginaAEscribir[i] = paginaALeer[i];
+		paginaAEscribir[i] = paginaALeer[i]; // esto copia de a 32 bits (de a dwords) desde la parte auxiliar hacia el area de tarea posta
 	}
 
 	//desmapeo las direcciones "aux" que use para poder escribir en nuevaPaginaDelAreaDeTareaPila/nuevaPaginaDelAreaDeTareaCodigo
