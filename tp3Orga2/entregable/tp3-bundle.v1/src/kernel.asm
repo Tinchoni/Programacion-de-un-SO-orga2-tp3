@@ -226,6 +226,29 @@ start:
 
 
 
+
+    ; test de punto 5.d)
+
+    ;mov ebx, cr3
+    ;push 0
+    ;call mmu_initTaskDir
+    ;mov cr3,eax
+    ; quiero imprimir un area gris (C_FG_DARK_GREY y C_BG_DARK_GREY, o sea que el atributo es 0x88) en las primeras 40 filas, desde la columna 1 hasta la 79.
+    ;push 0x55 ; attr magenta.
+    ;push 0x32 ; character, cualquiera, total se pinta gris (?). es invisible.
+    ;push 78   ; cSize
+    ;push 40   ; fSize, termina en la fila 39.
+    ;push 1    ; cInit
+    ;push 0    ; fInit
+    ;call screen_drawBox ; screen_drawBox(0, 1, 40, 78, 0x32, 0x88)
+
+    ;mov eax, ebx
+    ;mov cr3, eax
+
+
+
+
+
     ; ------------------------------ Clase 5? --------------------------------
     
     ; Inicializar tss
