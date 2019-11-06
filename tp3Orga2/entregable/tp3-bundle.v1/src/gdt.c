@@ -131,4 +131,196 @@ gdt_entry gdt[GDT_COUNT] = { //la tabla gdt
         (uint8_t)     0x00,           /* avl          */
         (uint8_t)     0x00,           /* 0           */
         (uint8_t)     0x00,           /* 0    */
-        (uint8_t)     0x00,           /* g = 0, usamos solo 100 bytes = 0x67 bytes.  
+        (uint8_t)     0x00,           /* g = 0, usamos solo 100 bytes = 0x67 bytes.             */
+        (uint8_t)     0x00,           /* base[31:24]  */  
+    },
+    [GDT_TSS_A1] = (gdt_entry) {
+        (uint16_t)    0x0067,         /* limit[0:15]  */
+        /*KEEEEE*/(uint16_t)    0x8000,         /* base[0:15]   */
+        /*KEEEEE*/(uint8_t)     0x0B,           /* base[23:16]  */
+        (uint8_t)     0x09,           /* type = TSS not busy (b=0)*/
+        (uint8_t)     0x00,           /* 0         */
+        (uint8_t)     0x00,           /* dpl = 0, un usuario (una tarea) no puede ejecutar otra tarea         */
+        (uint8_t)     0x01,           /* p = 1 SIEMPRE           */
+        (uint8_t)     0x00,           /* limit[16:19] */
+        (uint8_t)     0x00,           /* avl          */
+        (uint8_t)     0x00,           /* 0           */
+        (uint8_t)     0x00,           /* 0    */
+        (uint8_t)     0x00,           /* g = 0, usamos solo 100 bytes = 0x67 bytes.             */
+        (uint8_t)     0x00,           /* base[31:24]  */  
+    },
+    [GDT_TSS_A2] = (gdt_entry) {
+        (uint16_t)    0x0067,         /* limit[0:15]  */
+        /*KEEEEE*/(uint16_t)    0x8000,         /* base[0:15]   */
+        /*KEEEEE*/(uint8_t)     0x0B,           /* base[23:16]  */
+        (uint8_t)     0x09,           /* type = TSS not busy (b=0)*/
+        (uint8_t)     0x00,           /* 0         */
+        (uint8_t)     0x00,           /* dpl = 0, un usuario (una tarea) no puede ejecutar otra tarea         */
+        (uint8_t)     0x01,           /* p = 1 SIEMPRE           */
+        (uint8_t)     0x00,           /* limit[16:19] */
+        (uint8_t)     0x00,           /* avl          */
+        (uint8_t)     0x00,           /* 0           */
+        (uint8_t)     0x00,           /* 0    */
+        (uint8_t)     0x00,           /* g = 0, usamos solo 100 bytes = 0x67 bytes.             */
+        (uint8_t)     0x00,           /* base[31:24]  */  
+    },
+    [GDT_TSS_A3] = (gdt_entry) {
+        (uint16_t)    0x0067,         /* limit[0:15]  */
+        /*KEEEEE*/(uint16_t)    0x8000,         /* base[0:15]   */
+        /*KEEEEE*/(uint8_t)     0x0B,           /* base[23:16]  */
+        (uint8_t)     0x09,           /* type = TSS not busy (b=0)*/
+        (uint8_t)     0x00,           /* 0         */
+        (uint8_t)     0x00,           /* dpl = 0, un usuario (una tarea) no puede ejecutar otra tarea         */
+        (uint8_t)     0x01,           /* p = 1 SIEMPRE           */
+        (uint8_t)     0x00,           /* limit[16:19] */
+        (uint8_t)     0x00,           /* avl          */
+        (uint8_t)     0x00,           /* 0           */
+        (uint8_t)     0x00,           /* 0    */
+        (uint8_t)     0x00,           /* g = 0, usamos solo 100 bytes = 0x67 bytes.             */
+        (uint8_t)     0x00,           /* base[31:24]  */  
+    },
+    [GDT_TSS_HANDLER_A1] = (gdt_entry) {
+        (uint16_t)    0x0067,         /* limit[0:15]  */
+        /*KEEEEE*/(uint16_t)    0x8000,         /* base[0:15]   */
+        /*KEEEEE*/(uint8_t)     0x0B,           /* base[23:16]  */
+        (uint8_t)     0x09,           /* type = TSS not busy (b=0)*/
+        (uint8_t)     0x00,           /* 0         */
+        (uint8_t)     0x00,           /* dpl = 0, un usuario (una tarea) no puede ejecutar otra tarea         */
+        (uint8_t)     0x01,           /* p = 1 SIEMPRE           */
+        (uint8_t)     0x00,           /* limit[16:19] */
+        (uint8_t)     0x00,           /* avl          */
+        (uint8_t)     0x00,           /* 0           */
+        (uint8_t)     0x00,           /* 0    */
+        (uint8_t)     0x00,           /* g = 0, usamos solo 100 bytes = 0x67 bytes.             */
+        (uint8_t)     0x00,           /* base[31:24]  */  
+    },
+    [GDT_TSS_HANDLER_A2] = (gdt_entry) {
+        (uint16_t)    0x0067,         /* limit[0:15]  */
+        /*KEEEEE*/(uint16_t)    0x8000,         /* base[0:15]   */
+        /*KEEEEE*/(uint8_t)     0x0B,           /* base[23:16]  */
+        (uint8_t)     0x09,           /* type = TSS not busy (b=0)*/
+        (uint8_t)     0x00,           /* 0         */
+        (uint8_t)     0x00,           /* dpl = 0, un usuario (una tarea) no puede ejecutar otra tarea         */
+        (uint8_t)     0x01,           /* p = 1 SIEMPRE           */
+        (uint8_t)     0x00,           /* limit[16:19] */
+        (uint8_t)     0x00,           /* avl          */
+        (uint8_t)     0x00,           /* 0           */
+        (uint8_t)     0x00,           /* 0    */
+        (uint8_t)     0x00,           /* g = 0, usamos solo 100 bytes = 0x67 bytes.             */
+        (uint8_t)     0x00,           /* base[31:24]  */  
+    },
+    [GDT_TSS_HANDLER_A3] = (gdt_entry) {
+        (uint16_t)    0x0067,         /* limit[0:15]  */
+        /*KEEEEE*/(uint16_t)    0x8000,         /* base[0:15]   */
+        /*KEEEEE*/(uint8_t)     0x0B,           /* base[23:16]  */
+        (uint8_t)     0x09,           /* type = TSS not busy (b=0)*/
+        (uint8_t)     0x00,           /* 0         */
+        (uint8_t)     0x00,           /* dpl = 0, un usuario (una tarea) no puede ejecutar otra tarea         */
+        (uint8_t)     0x01,           /* p = 1 SIEMPRE           */
+        (uint8_t)     0x00,           /* limit[16:19] */
+        (uint8_t)     0x00,           /* avl          */
+        (uint8_t)     0x00,           /* 0           */
+        (uint8_t)     0x00,           /* 0    */
+        (uint8_t)     0x00,           /* g = 0, usamos solo 100 bytes = 0x67 bytes.             */
+        (uint8_t)     0x00,           /* base[31:24]  */  
+    },
+
+    [GDT_TSS_B1] = (gdt_entry) {
+        (uint16_t)    0x0067,         /* limit[0:15]  */
+        /*KEEEEE*/(uint16_t)    0x8000,         /* base[0:15]   */
+        /*KEEEEE*/(uint8_t)     0x0B,           /* base[23:16]  */
+        (uint8_t)     0x09,           /* type = TSS not busy (b=0)*/
+        (uint8_t)     0x00,           /* 0         */
+        (uint8_t)     0x00,           /* dpl = 0, un usuario (una tarea) no puede ejecutar otra tarea         */
+        (uint8_t)     0x01,           /* p = 1 SIEMPRE           */
+        (uint8_t)     0x00,           /* limit[16:19] */
+        (uint8_t)     0x00,           /* avl          */
+        (uint8_t)     0x00,           /* 0           */
+        (uint8_t)     0x00,           /* 0    */
+        (uint8_t)     0x00,           /* g = 0, usamos solo 100 bytes = 0x67 bytes.             */
+        (uint8_t)     0x00,           /* base[31:24]  */  
+    },
+    [GDT_TSS_B2] = (gdt_entry) {
+        (uint16_t)    0x0067,         /* limit[0:15]  */
+        /*KEEEEE*/(uint16_t)    0x8000,         /* base[0:15]   */
+        /*KEEEEE*/(uint8_t)     0x0B,           /* base[23:16]  */
+        (uint8_t)     0x09,           /* type = TSS not busy (b=0)*/
+        (uint8_t)     0x00,           /* 0         */
+        (uint8_t)     0x00,           /* dpl = 0, un usuario (una tarea) no puede ejecutar otra tarea         */
+        (uint8_t)     0x01,           /* p = 1 SIEMPRE           */
+        (uint8_t)     0x00,           /* limit[16:19] */
+        (uint8_t)     0x00,           /* avl          */
+        (uint8_t)     0x00,           /* 0           */
+        (uint8_t)     0x00,           /* 0    */
+        (uint8_t)     0x00,           /* g = 0, usamos solo 100 bytes = 0x67 bytes.             */
+        (uint8_t)     0x00,           /* base[31:24]  */  
+    },
+    [GDT_TSS_B3] = (gdt_entry) {
+        (uint16_t)    0x0067,         /* limit[0:15]  */
+        /*KEEEEE*/(uint16_t)    0x8000,         /* base[0:15]   */
+        /*KEEEEE*/(uint8_t)     0x0B,           /* base[23:16]  */
+        (uint8_t)     0x09,           /* type = TSS not busy (b=0)*/
+        (uint8_t)     0x00,           /* 0         */
+        (uint8_t)     0x00,           /* dpl = 0, un usuario (una tarea) no puede ejecutar otra tarea         */
+        (uint8_t)     0x01,           /* p = 1 SIEMPRE           */
+        (uint8_t)     0x00,           /* limit[16:19] */
+        (uint8_t)     0x00,           /* avl          */
+        (uint8_t)     0x00,           /* 0           */
+        (uint8_t)     0x00,           /* 0    */
+        (uint8_t)     0x00,           /* g = 0, usamos solo 100 bytes = 0x67 bytes.             */
+        (uint8_t)     0x00,           /* base[31:24]  */  
+    },
+    [GDT_TSS_HANDLER_B1] = (gdt_entry) {
+        (uint16_t)    0x0067,         /* limit[0:15]  */
+        /*KEEEEE*/(uint16_t)    0x8000,         /* base[0:15]   */
+        /*KEEEEE*/(uint8_t)     0x0B,           /* base[23:16]  */
+        (uint8_t)     0x09,           /* type = TSS not busy (b=0)*/
+        (uint8_t)     0x00,           /* 0         */
+        (uint8_t)     0x00,           /* dpl = 0, un usuario (una tarea) no puede ejecutar otra tarea         */
+        (uint8_t)     0x01,           /* p = 1 SIEMPRE           */
+        (uint8_t)     0x00,           /* limit[16:19] */
+        (uint8_t)     0x00,           /* avl          */
+        (uint8_t)     0x00,           /* 0           */
+        (uint8_t)     0x00,           /* 0    */
+        (uint8_t)     0x00,           /* g = 0, usamos solo 100 bytes = 0x67 bytes.             */
+        (uint8_t)     0x00,           /* base[31:24]  */  
+    },
+    [GDT_TSS_HANDLER_B2] = (gdt_entry) {
+        (uint16_t)    0x0067,         /* limit[0:15]  */
+        /*KEEEEE*/(uint16_t)    0x8000,         /* base[0:15]   */
+        /*KEEEEE*/(uint8_t)     0x0B,           /* base[23:16]  */
+        (uint8_t)     0x09,           /* type = TSS not busy (b=0)*/
+        (uint8_t)     0x00,           /* 0         */
+        (uint8_t)     0x00,           /* dpl = 0, un usuario (una tarea) no puede ejecutar otra tarea         */
+        (uint8_t)     0x01,           /* p = 1 SIEMPRE           */
+        (uint8_t)     0x00,           /* limit[16:19] */
+        (uint8_t)     0x00,           /* avl          */
+        (uint8_t)     0x00,           /* 0           */
+        (uint8_t)     0x00,           /* 0    */
+        (uint8_t)     0x00,           /* g = 0, usamos solo 100 bytes = 0x67 bytes.             */
+        (uint8_t)     0x00,           /* base[31:24]  */  
+    },
+    [GDT_TSS_HANDLER_B3] = (gdt_entry) {
+        (uint16_t)    0x0067,         /* limit[0:15]  */
+        /*KEEEEE*/(uint16_t)    0x8000,         /* base[0:15]   */
+        /*KEEEEE*/(uint8_t)     0x0B,           /* base[23:16]  */
+        (uint8_t)     0x09,           /* type = TSS not busy (b=0)*/
+        (uint8_t)     0x00,           /* 0         */
+        (uint8_t)     0x00,           /* dpl = 0, un usuario (una tarea) no puede ejecutar otra tarea         */
+        (uint8_t)     0x01,           /* p = 1 SIEMPRE           */
+        (uint8_t)     0x00,           /* limit[16:19] */
+        (uint8_t)     0x00,           /* avl          */
+        (uint8_t)     0x00,           /* 0           */
+        (uint8_t)     0x00,           /* 0    */
+        (uint8_t)     0x00,           /* g = 0, usamos solo 100 bytes = 0x67 bytes.             */
+        (uint8_t)     0x00,           /* base[31:24]  */  
+    }
+};
+
+gdt_descriptor GDT_DESC = { // este es el gdtr de mierda 
+    sizeof(gdt) - 1, //el fkin LIMIT
+    (uint32_t) &gdt //la BASE 
+};
+
+
+// el limite es un puntero a la memoria al ultimo byte legible del segmento. Como Granularity = 1 => si limit = 00001010001100000000 (163mb / 4kb) el puntero sera 00001010001100000000111111111110 (espero)

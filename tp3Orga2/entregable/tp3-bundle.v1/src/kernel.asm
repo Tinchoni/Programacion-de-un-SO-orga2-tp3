@@ -251,7 +251,7 @@ start:
 
     ; ------------------------------ Clase 5? --------------------------------
     
-
+    xchg bx, bx
     ; Inicializar tss
     call tss_init
 
@@ -264,7 +264,7 @@ start:
 
 
     ; ------------------------------ Clase 2 ---------------------------------
-
+    xchg bx, bx
     ; Inicializar la IDT
     call idt_inicializar
 

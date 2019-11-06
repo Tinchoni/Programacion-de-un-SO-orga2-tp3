@@ -28,7 +28,7 @@
 
 /* Indices en la gdt */
 /* -------------------------------------------------------------------------- */
-#define GDT_COUNT 30
+#define GDT_COUNT 40
 
 #define GDT_IDX_NULL_DESC           0
 #define GDT_CODIGO_KERNEL 			14
