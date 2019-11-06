@@ -35,7 +35,7 @@ extern idt_init
 extern mmu_initKernelDir
 extern mmu_init
 extern mmu_initTaskDir
-
+extern tss_init
 extern print
 
 ;; Saltear seccion de datos
@@ -251,7 +251,9 @@ start:
 
     ; ------------------------------ Clase 5? --------------------------------
     
+
     ; Inicializar tss
+    call tss_init
 
     ; Inicializar tss de la tarea Idle
 
