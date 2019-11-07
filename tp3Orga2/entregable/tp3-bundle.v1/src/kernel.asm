@@ -29,6 +29,7 @@ extern pic_reset
 extern pic_enable
 extern IDT_DESC
 extern GDT_DESC
+extern GDT_TSS_TAREA_INICIAL
 extern screen_drawBox
 extern idt_inicializar
 extern idt_init
@@ -256,6 +257,12 @@ start:
     call tss_init
 
     ; Inicializar tss de la tarea Idle
+    mov ax, 19 << 3 ; porque 19 es GDT_TSS_TAREA_INICIAL (harcodeado pq sino no compila)
+    ltr ax ; ahora el task register apunta a la entrada GDT_TSS_TAREA_INICIAL, por lo que ya sabe donde guardar el contexto actual cuando intercambie tareas.
+
+    xchg bx, bx
+    jmp (20<<3):0 ; same pero GDT_TSS_IDLE
+
 
     ; Inicializar el scheduler
 
@@ -282,9 +289,9 @@ start:
 
     ;TEST
 
-    push 0
-    call mmu_initTaskDir
-    mov cr3, eax
+    ;push 0
+    ;call mmu_initTaskDir
+    ;mov cr3, eax
 
 
     ; ---------------------------- Fin Clase 2 --------------------------------
@@ -296,7 +303,7 @@ start:
     ; Habilitar interrupciones
     sti 
 
-    ; Saltar a la primera tarea: Idle
+    ; Saltar a la primera tarea: Idle (tipo game over?)
 
     ; Ciclar infinitamente (por si algo sale mal...)
     mov eax, 0xFFFF

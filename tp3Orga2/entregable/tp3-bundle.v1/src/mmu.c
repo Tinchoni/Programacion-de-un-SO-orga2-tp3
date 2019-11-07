@@ -203,7 +203,8 @@ uint32_t mmu_initTaskDir(uint32_t tipoDeTarea){
 
 	//vamos a hacer identity mapping de la memoria desde 0x00000 hasta 0x3FFFFF
 	//esta es la memoria del kernel
-	//y vamos a mapear la 0x08000000 y la 0x08001000 a una pagina libre del area de tareas correspondientemente
+	//y vamos a mapear la 0x08000000 y la 0x08001000 (direcciones lineales) a una pagina libre del area de tareas (fisica) correspondientemente
+	//y devolver el CR3 que apunta al directorio creado para la tarea.
 	
 	uint32_t cr3Task = mmu_nextFreeKernelPage();  // cada tarea tiene su propio page directory y sus propios pde, pte, bla.
 
