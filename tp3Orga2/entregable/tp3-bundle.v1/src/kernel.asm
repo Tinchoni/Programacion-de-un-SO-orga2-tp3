@@ -252,7 +252,6 @@ start:
 
     ; ------------------------------ Clase 5? --------------------------------
     
-    xchg bx, bx
     ; Inicializar tss
     call tss_init
 
@@ -260,8 +259,7 @@ start:
     mov ax, 19 << 3 ; porque 19 es GDT_TSS_TAREA_INICIAL (harcodeado pq sino no compila)
     ltr ax ; ahora el task register apunta a la entrada GDT_TSS_TAREA_INICIAL, por lo que ya sabe donde guardar el contexto actual cuando intercambie tareas.
 
-    xchg bx, bx
-    jmp (20<<3):0 ; same pero GDT_TSS_IDLE
+
 
 
     ; Inicializar el scheduler
@@ -271,7 +269,6 @@ start:
 
 
     ; ------------------------------ Clase 2 ---------------------------------
-    xchg bx, bx
     ; Inicializar la IDT
     call idt_inicializar
 
@@ -285,8 +282,7 @@ start:
     ; Configurar controlador de interrupciones
     call pic_reset ; remapeo el PIC
     call pic_enable ;prendo el PIC
-    sti ;habilito de vuelta interrupciones
-
+    
     ;TEST
 
     ;push 0
@@ -294,16 +290,19 @@ start:
     ;mov cr3, eax
 
 
+
     ; ---------------------------- Fin Clase 2 --------------------------------
 
     ; Cargar tarea inicial
 
-    jmp $ ; por que esta aca? que onda, pa mi hay que volarlo o ponerlo mas abajo (?)
-
+    
     ; Habilitar interrupciones
     sti 
 
     ; Saltar a la primera tarea: Idle (tipo game over?)
+
+    xchg bx, bx
+    jmp (20<<3):0 ; same pero GDT_TSS_IDLE
 
     ; Ciclar infinitamente (por si algo sale mal...)
     mov eax, 0xFFFF
