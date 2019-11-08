@@ -77,8 +77,10 @@ ISR 31
 global _isr32
 
 _isr32:
+    pushad
     call nextClock
     call pic_finish1
+    popad
     iret
 
 ;; Rutina de atención del TECLADO
