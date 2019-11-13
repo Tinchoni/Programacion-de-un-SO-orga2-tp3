@@ -153,10 +153,6 @@ uint32_t mmu_initKernelDir() {
 	page *miPaginita = (miTablita[offset_table].direccion_pagina << 12) 0000 0000 11-00 0001 0010 = 0x00C12
 	EL DATO! = miPaginita[offset_page] 0X00012000 + 0X345 = 0X00C12345
 
-
-
-	b -> direccion_pagina << 12 + 0x00F
-
 	direccion fisica deseada:
 	0x00C12345	
 	
