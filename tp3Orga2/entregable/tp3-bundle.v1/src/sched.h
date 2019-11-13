@@ -12,6 +12,8 @@
 #include "screen.h"
 #include "tss.h"
 
+uint32_t quantum;
+
 void sched_init();
 
 int16_t sched_nextTask();

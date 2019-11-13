@@ -299,10 +299,12 @@ start:
     ; Habilitar interrupciones
     sti 
 
-    ; Saltar a la primera tarea: Idle (tipo game over?)
+    ; Saltar a la primera tarea: Idle
 
-    xchg bx, bx
     jmp (20<<3):0 ; same pero GDT_TSS_IDLE
+
+    ;NOSOTROS - inicializamos el juego.
+    call game_init
 
     ; Ciclar infinitamente (por si algo sale mal...)
     mov eax, 0xFFFF
@@ -312,5 +314,16 @@ start:
     jmp $
 
 ;; -------------------------------------------------------------------------- ;;
+
+;; funcion auxiliar
+
+saltarATarea: ; [esp] = selectorDeSegmento
+    mov di, [esp]
+    jmp di:0 ; con esto saltamos a la entrada selectorDeSegmento de la GDT.
+    ;este ret se ejecuta cuando VUELVA a la tarea. es LO PRIMERO 
+    ; que ejecuta al retomar cada tarea (exceptuando la primera vez).
+    ret 
+
+
 
 %include "a20.asm"

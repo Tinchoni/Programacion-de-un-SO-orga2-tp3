@@ -79,6 +79,9 @@ global _isr32
 _isr32:
     pushad
     call nextClock
+    ;cuando el clock cambie vamos a llamar al scheduler porque... para eso teniamos el clock y el scheduler, no?
+    ;aca vamos a swappear de tarea 
+    ;call sched_nextTask
     call pic_finish1
     popad
     iret
@@ -103,7 +106,34 @@ _isr33:
 
 global _isr47
 _isr47:
-    mov eax, 0x42
+    cmp eax, 0x80000003
+    je .setHandler
+    jmp .sigo1
+    .setHandler:
+        call setHandler
+    
+    .sigo1:
+    cmp eax, 0x80000001
+    je .talk
+    jmp .sigo2
+    .talk:
+        call talk
+    
+    .sigo2:
+    cmp eax, 0x80000002
+    je .where
+    jmp .sigo3
+    .where:
+        call where
+
+    .sigo3:
+    cmp eax, 0x8000FFFF
+    je .informAction
+    jmp .sigo4
+    .informAction:
+        call informAction
+
+    .sigo4:
     iret
 
 ;; Funciones Auxiliares
@@ -123,3 +153,38 @@ nextClock:
                 print_text_pm ebx, 1, 0x0f, 49, 79
         popad
         ret
+
+;debe preservar eax
+setHandler:
+    pushad
+    push ebx
+    call setHandlerValue
+    add esp, 4
+    popad
+    ret 
+
+talk: 
+    pushad
+    ;COMPLETAR
+    popad
+    ret
+
+where: 
+    pushad
+    ;COMPLETAR
+    popad
+    ret
+
+informAction: 
+    pushad
+    
+    ;call a game.c
+    call actualizarMovimientoPendiente
+
+    ;call a sched.c
+    call saltarDeHandlerATarea
+
+    popad
+    ret
+
+

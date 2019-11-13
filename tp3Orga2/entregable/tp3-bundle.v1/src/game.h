@@ -15,6 +15,12 @@
 
 typedef void (*f_handler_t)();
 
+typedef struct str_coordenadaPelota {
+    uint32_t  x;
+    uint32_t  y;
+} coordenadaPelota;
+
+
 typedef enum e_action {
     Up = 1,
     Center = 2,

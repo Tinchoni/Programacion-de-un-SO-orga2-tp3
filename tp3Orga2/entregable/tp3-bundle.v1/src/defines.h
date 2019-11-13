@@ -42,13 +42,15 @@
 #define GDT_TSS_A1  				21
 #define GDT_TSS_A2  				22
 #define GDT_TSS_A3  				23
-#define GDT_TSS_HANDLER_A1  		24
-#define GDT_TSS_HANDLER_A2  		25
-#define GDT_TSS_HANDLER_A3  		26
 
-#define GDT_TSS_B1  				27
-#define GDT_TSS_B2  				28
-#define GDT_TSS_B3  				29
+#define GDT_TSS_B1  				24
+#define GDT_TSS_B2  				25
+#define GDT_TSS_B3  				26
+
+#define GDT_TSS_HANDLER_A1  		27
+#define GDT_TSS_HANDLER_A3  		28
+#define GDT_TSS_HANDLER_A2  		29
+
 #define GDT_TSS_HANDLER_B1  		30
 #define GDT_TSS_HANDLER_B2  		31
 #define GDT_TSS_HANDLER_B3  		32

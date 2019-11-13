@@ -118,10 +118,10 @@ void tss_init() {
     tss_idle.dtrap = (uint16_t) 0;
     tss_idle.iomap = (uint16_t) 0;
 
-    // for(uint32_t i= 0; i < 6; i++){
-    // 	userLevelTasksCodeAndStacks[i] = mmu_initTaskDir(i);
-    // 	kernelLevelTasksStacks[i] = mmu_nextFreeKernelPage();
-    // }
+    for(uint32_t i= 0; i < 6; i++){
+    	userLevelTasksCodeAndStacks[i] = mmu_initTaskDir(i);
+    	kernelLevelTasksStacks[i] = mmu_nextFreeKernelPage();
+    }
     // ahora ya esta seteado el arreglo de CR3's y el de ESP0's
 
 
@@ -144,89 +144,89 @@ void tss_init() {
 
 
 
- //    // Definir la base del descriptor de la gdt de A1
- //    uint32_t dirA1 = (uint32_t) &tss_A1;
+    // Definir la base del descriptor de la gdt de A1
+    uint32_t dirA1 = (uint32_t) &tss_A1;
 
- //    gdt[GDT_TSS_A1].base_0_15 = dirA1;
- //    gdt[GDT_TSS_A1].base_23_16 = (dirA1 >> 16);
- //    gdt[GDT_TSS_A1].base_31_24 = (dirA1 >> 24);
+    gdt[GDT_TSS_A1].base_0_15 = dirA1;
+    gdt[GDT_TSS_A1].base_23_16 = (dirA1 >> 16);
+    gdt[GDT_TSS_A1].base_31_24 = (dirA1 >> 24);
 
- //    // Definir la base del descriptor de la gdt de HANDLER_A1
- //    uint32_t dirA1Handler = (uint32_t) &tss_HANDLER_A1;
+    // Definir la base del descriptor de la gdt de HANDLER_A1
+    uint32_t dirA1Handler = (uint32_t) &tss_HANDLER_A1;
 
- //    gdt[GDT_TSS_HANDLER_A1].base_0_15 = dirA1Handler;
- //    gdt[GDT_TSS_HANDLER_A1].base_23_16 = (dirA1Handler >> 16);
- //    gdt[GDT_TSS_HANDLER_A1].base_31_24 = (dirA1Handler >> 24);
+    gdt[GDT_TSS_HANDLER_A1].base_0_15 = dirA1Handler;
+    gdt[GDT_TSS_HANDLER_A1].base_23_16 = (dirA1Handler >> 16);
+    gdt[GDT_TSS_HANDLER_A1].base_31_24 = (dirA1Handler >> 24);
 
-	// // Definir la base del descriptor de la gdt de A2
- //    uint32_t dirA2 = (uint32_t) &tss_A2;
+	// Definir la base del descriptor de la gdt de A2
+    uint32_t dirA2 = (uint32_t) &tss_A2;
 
- //    gdt[GDT_TSS_A2].base_0_15 = dirA2;
- //    gdt[GDT_TSS_A2].base_23_16 = (dirA2 >> 16);
- //    gdt[GDT_TSS_A2].base_31_24 = (dirA2 >> 24);
+    gdt[GDT_TSS_A2].base_0_15 = dirA2;
+    gdt[GDT_TSS_A2].base_23_16 = (dirA2 >> 16);
+    gdt[GDT_TSS_A2].base_31_24 = (dirA2 >> 24);
 
- //    // Definir la base del descriptor de la gdt de HANDLER_A2
- //    uint32_t dirA2Handler = (uint32_t) &tss_HANDLER_A2;
+    // Definir la base del descriptor de la gdt de HANDLER_A2
+    uint32_t dirA2Handler = (uint32_t) &tss_HANDLER_A2;
 
- //    gdt[GDT_TSS_HANDLER_A2].base_0_15 = dirA2Handler;
- //    gdt[GDT_TSS_HANDLER_A2].base_23_16 = (dirA2Handler >> 16);
- //    gdt[GDT_TSS_HANDLER_A2].base_31_24 = (dirA2Handler >> 24);
+    gdt[GDT_TSS_HANDLER_A2].base_0_15 = dirA2Handler;
+    gdt[GDT_TSS_HANDLER_A2].base_23_16 = (dirA2Handler >> 16);
+    gdt[GDT_TSS_HANDLER_A2].base_31_24 = (dirA2Handler >> 24);
 
- //    // Definir la base del descriptor de la gdt de A3
- //    uint32_t dirA3 = (uint32_t) &tss_A3;
+    // Definir la base del descriptor de la gdt de A3
+    uint32_t dirA3 = (uint32_t) &tss_A3;
 
- //    gdt[GDT_TSS_A3].base_0_15 = dirA3;
- //    gdt[GDT_TSS_A3].base_23_16 = (dirA3 >> 16);
- //    gdt[GDT_TSS_A3].base_31_24 = (dirA3 >> 24);
+    gdt[GDT_TSS_A3].base_0_15 = dirA3;
+    gdt[GDT_TSS_A3].base_23_16 = (dirA3 >> 16);
+    gdt[GDT_TSS_A3].base_31_24 = (dirA3 >> 24);
 
- //    // Definir la base del descriptor de la gdt de HANDLER_A3
- //    uint32_t dirA3Handler = (uint32_t) &tss_HANDLER_A3;
+    // Definir la base del descriptor de la gdt de HANDLER_A3
+    uint32_t dirA3Handler = (uint32_t) &tss_HANDLER_A3;
 
- //    gdt[GDT_TSS_HANDLER_A3].base_0_15 = dirA3Handler;
- //    gdt[GDT_TSS_HANDLER_A3].base_23_16 = (dirA3Handler >> 16);
- //    gdt[GDT_TSS_HANDLER_A3].base_31_24 = (dirA3Handler >> 24);
+    gdt[GDT_TSS_HANDLER_A3].base_0_15 = dirA3Handler;
+    gdt[GDT_TSS_HANDLER_A3].base_23_16 = (dirA3Handler >> 16);
+    gdt[GDT_TSS_HANDLER_A3].base_31_24 = (dirA3Handler >> 24);
 
- //    // Definir la base del descriptor de la gdt de B1
- //    uint32_t dirB1 = (uint32_t) &tss_B1;
+    // Definir la base del descriptor de la gdt de B1
+    uint32_t dirB1 = (uint32_t) &tss_B1;
 
- //    gdt[GDT_TSS_B1].base_0_15 = dirB1;
- //    gdt[GDT_TSS_B1].base_23_16 = (dirB1 >> 16);
- //    gdt[GDT_TSS_B1].base_31_24 = (dirB1 >> 24);
+    gdt[GDT_TSS_B1].base_0_15 = dirB1;
+    gdt[GDT_TSS_B1].base_23_16 = (dirB1 >> 16);
+    gdt[GDT_TSS_B1].base_31_24 = (dirB1 >> 24);
 
- //    // Definir la base del descriptor de la gdt de HANDLER_B1
- //    uint32_t dirB1Handler = (uint32_t) &tss_HANDLER_B1;
+    // Definir la base del descriptor de la gdt de HANDLER_B1
+    uint32_t dirB1Handler = (uint32_t) &tss_HANDLER_B1;
 
- //    gdt[GDT_TSS_HANDLER_B1].base_0_15 = dirB1Handler;
- //    gdt[GDT_TSS_HANDLER_B1].base_23_16 = (dirB1Handler >> 16);
- //    gdt[GDT_TSS_HANDLER_B1].base_31_24 = (dirB1Handler >> 24);
+    gdt[GDT_TSS_HANDLER_B1].base_0_15 = dirB1Handler;
+    gdt[GDT_TSS_HANDLER_B1].base_23_16 = (dirB1Handler >> 16);
+    gdt[GDT_TSS_HANDLER_B1].base_31_24 = (dirB1Handler >> 24);
 
- //    // Definir la base del descriptor de la gdt de B2
- //    uint32_t dirB2 = (uint32_t) &tss_B2;
+    // Definir la base del descriptor de la gdt de B2
+    uint32_t dirB2 = (uint32_t) &tss_B2;
 
- //    gdt[GDT_TSS_B2].base_0_15 = dirB2;
- //    gdt[GDT_TSS_B2].base_23_16 = (dirB2 >> 16);
- //    gdt[GDT_TSS_B2].base_31_24 = (dirB2 >> 24);
+    gdt[GDT_TSS_B2].base_0_15 = dirB2;
+    gdt[GDT_TSS_B2].base_23_16 = (dirB2 >> 16);
+    gdt[GDT_TSS_B2].base_31_24 = (dirB2 >> 24);
 
- //    // Definir la base del descriptor de la gdt de HANDLER_B2
- //    uint32_t dirB2Handler = (uint32_t) &tss_HANDLER_B2;
+    // Definir la base del descriptor de la gdt de HANDLER_B2
+    uint32_t dirB2Handler = (uint32_t) &tss_HANDLER_B2;
 
- //    gdt[GDT_TSS_HANDLER_B2].base_0_15 = dirB2Handler;
- //    gdt[GDT_TSS_HANDLER_B2].base_23_16 = (dirB2Handler >> 16);
- //    gdt[GDT_TSS_HANDLER_B2].base_31_24 = (dirB2Handler >> 24);
+    gdt[GDT_TSS_HANDLER_B2].base_0_15 = dirB2Handler;
+    gdt[GDT_TSS_HANDLER_B2].base_23_16 = (dirB2Handler >> 16);
+    gdt[GDT_TSS_HANDLER_B2].base_31_24 = (dirB2Handler >> 24);
 
- //    // Definir la base del descriptor de la gdt de B3
- //    uint32_t dirB3 = (uint32_t) &tss_B3;
+    // Definir la base del descriptor de la gdt de B3
+    uint32_t dirB3 = (uint32_t) &tss_B3;
 
- //    gdt[GDT_TSS_B3].base_0_15 = dirB3;
- //    gdt[GDT_TSS_B3].base_23_16 = (dirB3 >> 16);
- //    gdt[GDT_TSS_B3].base_31_24 = (dirB3 >> 24);
+    gdt[GDT_TSS_B3].base_0_15 = dirB3;
+    gdt[GDT_TSS_B3].base_23_16 = (dirB3 >> 16);
+    gdt[GDT_TSS_B3].base_31_24 = (dirB3 >> 24);
 
- //    // Definir la base del descriptor de la gdt de HANDLER_B3
- //    uint32_t dirB3Handler = (uint32_t) &tss_HANDLER_B3;
+    // Definir la base del descriptor de la gdt de HANDLER_B3
+    uint32_t dirB3Handler = (uint32_t) &tss_HANDLER_B3;
 
- //    gdt[GDT_TSS_HANDLER_B3].base_0_15 = dirB3Handler;
- //    gdt[GDT_TSS_HANDLER_B3].base_23_16 = (dirB3Handler >> 16);
- //    gdt[GDT_TSS_HANDLER_B3].base_31_24 = (dirB3Handler >> 24);
+    gdt[GDT_TSS_HANDLER_B3].base_0_15 = dirB3Handler;
+    gdt[GDT_TSS_HANDLER_B3].base_23_16 = (dirB3Handler >> 16);
+    gdt[GDT_TSS_HANDLER_B3].base_31_24 = (dirB3Handler >> 24);
 }
 
 
@@ -317,12 +317,6 @@ void llenarTSSA1_Handler(uint32_t tipoDeTarea, uint32_t eip){
     tss_HANDLER_A1.dtrap = tasksAndHandlers_dtrap;
     tss_HANDLER_A1.iomap = tasksAndHandlers_iomap;
 }
-
-
-
-
-
-
 
 void llenarTSSA2(uint32_t tipoDeTarea){
 	tss_A2.ptl = tasksAndHandlers_ptl;
