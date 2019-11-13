@@ -65,7 +65,9 @@ void mmu_mapPage(uint32_t virtual, uint32_t cr3, uint32_t phy, uint32_t attrs) {
 	    dir[offset_pd].ps = 0;
 	    dir[offset_pd].g = 0;
 	    dir[offset_pd].disponible = 0;
-	    dir[offset_pd].direccion_tabla_de_descriptores_de_paginas = ((uint32_t)nuevaTabla) >> 12;
+	    // aca pusimos ((uint32_t)nuevaTabla) >> 12 que no es ni mas ni menos que la parte alta (20 b mas significativos)
+	    // del puntero a la memoria donde queriamos mappear la pagina.
+	    dir[offset_pd].direccion_tabla_de_descriptores_de_paginas = ((uint32_t)nuevaTabla) >> 12; // ver explicacion mas abajo porque dentro de 1 mes vamos a entrar en crisis al no ver explicacion aca. Chau chamito que disfrutes mi granola y la administracion de empresas
 	}
 
 	uint32_t ptPointer = dir[offset_pd].direccion_tabla_de_descriptores_de_paginas << 12;
@@ -136,8 +138,13 @@ uint32_t mmu_initKernelDir() {
 		table[i].pat = 0;
 		table[i].g = 0;
 		table[i].disponible = 0;
-		table[i].direccion_pagina = i;
-	}
+		//  esta i tiene escondida una banda (maximo 12) de 0's adelante. esos 0's NO SON TRIVIALES
+		//  esos 0's valen 0 porque justo estamos intentando mappear los primeros 4 mb de la memoria fisica.
+		//  entonces casualmente, la pte numero i va a querer apuntar a la posicion i << 12 (i*4KB, es decir i*tamanio_pagina) porque 
+		//  encima justo JUSTITO es id. mapping.
+		//  sino, ver caso en mmu_mapPage donde nos encargamos de shiftear 12 bits de un puntero a memoria fisica del kernel
+		//  que conseguiamos llamando a mmu_nextFreeKernelPage.
+		table[i].direccion_pagina = i; 
 
 	/*
 	
