@@ -60,4 +60,19 @@ extern tss tss_idle;
 
 void tss_init();
 
+void initUserTask(uint32_t tipoDeTarea, uint32_t esHandler, uint32_t punteroARutinaHandler);
+void llenarTSSA1(uint32_t tipoDeTarea); 
+void llenarTSSA2(uint32_t tipoDeTarea); 
+void llenarTSSA3(uint32_t tipoDeTarea); 
+void llenarTSSA1_HANDLER(uint32_t tipoDeTarea, uint32_t eip); 
+void llenarTSSA2_HANDLER(uint32_t tipoDeTarea, uint32_t eip); 
+void llenarTSSA3_HANDLER(uint32_t tipoDeTarea, uint32_t eip); 
+
+void llenarTSSB1(uint32_t tipoDeTarea); 
+void llenarTSSB2(uint32_t tipoDeTarea); 
+void llenarTSSB3(uint32_t tipoDeTarea); 
+void llenarTSSB1_HANDLER(uint32_t tipoDeTarea, uint32_t eip); 
+void llenarTSSB2_HANDLER(uint32_t tipoDeTarea, uint32_t eip); 
+void llenarTSSB3_HANDLER(uint32_t tipoDeTarea, uint32_t eip);
+
 #endif  /* !__TSS_H__ */

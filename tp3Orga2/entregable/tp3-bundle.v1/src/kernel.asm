@@ -24,6 +24,7 @@
 %define KERNEL_PAGE_DIR 0x2B000 
 
 global start
+global saltarATarea
 
 extern pic_reset
 extern pic_enable
@@ -38,6 +39,7 @@ extern mmu_init
 extern mmu_initTaskDir
 extern tss_init
 extern print
+extern game_init
 
 ;; Saltear seccion de datos
 jmp start
@@ -318,8 +320,7 @@ start:
 ;; funcion auxiliar
 
 saltarATarea: ; [esp] = selectorDeSegmento
-    mov di, [esp]
-    jmp di:0 ; con esto saltamos a la entrada selectorDeSegmento de la GDT.
+    jmp far [esp] ; con esto saltamos a la entrada selectorDeSegmento de la GDT.
     ;este ret se ejecuta cuando VUELVA a la tarea. es LO PRIMERO 
     ; que ejecuta al retomar cada tarea (exceptuando la primera vez).
     ret 

@@ -73,10 +73,10 @@ int16_t GDTEntryByType(uint32_t type){
 }
 
 int16_t sched_nextTask() {
+	int16_t response = 0;
 	if(quantum < 6){
 		//estoy swappeando entre manejo de pelotas.
 		//quantum == tipo de tarea que estoy procesando
-		int16_t response = 0;
 		if(handlers_activos[quantum] != 0){
 			//reinicio el handler
 			initUserTask(quantum, 1, handlers_activos[quantum]);

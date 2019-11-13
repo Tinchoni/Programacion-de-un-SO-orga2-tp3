@@ -15,7 +15,9 @@ extern pic_finish1
 
 ;; Sched
 extern sched_nextTask
-
+extern setHandlerValue
+extern actualizarMovimientoPendiente
+extern saltarDeHandlerATarea
 extern print_exception 
 
 ;;

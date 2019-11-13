@@ -58,11 +58,11 @@
 tss tss_initial;
 tss tss_idle;
 
-tss tss_A1;	
 
 uint32_t kernelLevelTasksStacks[6]; // array de esp0's
 uint32_t userLevelTasksCodeAndStacks[6]; // array de CR3's
 
+tss tss_A1;	
 tss tss_A2;	
 tss tss_A3;	
 tss tss_HANDLER_A1;	
