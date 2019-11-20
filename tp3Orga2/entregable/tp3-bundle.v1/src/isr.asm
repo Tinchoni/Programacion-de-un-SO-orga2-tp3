@@ -20,6 +20,7 @@ extern actualizarMovimientoPendiente
 extern saltarDeHandlerATarea
 extern print_exception 
 extern dibujarPantalla
+extern atender_teclado
 
 ;;
 ;; Definición de MACROS
@@ -103,8 +104,7 @@ _isr32:
     str cx
     cmp cx, 20<<3
     je .fin
-    jmp (20<<3):666 ;idle diabolico
-
+    jmp (20<<3):0 ;idle diabolico
     .fin:
     popad
     iret
@@ -117,7 +117,7 @@ _isr33:
     pushad ;preservamos TODES les registres
     in al, 0x60
     push eax
-    ;call print_number
+    call print_number
     call atender_teclado
     add esp, 4
 

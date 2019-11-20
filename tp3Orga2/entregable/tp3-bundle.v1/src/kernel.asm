@@ -173,7 +173,7 @@ start:
     push 1   ; cSize
     push 7   ; fSize
     push 0    ; cInit
-    push 20    ; fInit
+    push 17    ; fInit
     call screen_drawBox ; screen_drawBox(17, 0, 7, 1, 0x32, 0xCC)
 
     push 0x99 ; attr
@@ -194,7 +194,7 @@ start:
     ; el resto deberia ser hecho/actualizado por alguna tarea.
     ; de hecho, imprimir los puntos y las pelotas no es parte del ejercicio 1. Lo dejo porque despues va a servir como molde, pero va a volar
 
-    ; xchg bx, bx
+    
 
     ; ---------------------------- Fin Clase 1 --------------------------------
 

@@ -67,10 +67,11 @@ void atender_teclado(uint8_t tecla_presionada){
 		
 	case CODE_w:
 		//mover hacia arriba jugador A
-
+		moverJugador(1, Up);
 		break;
 	case CODE_s:
 		//mover hacia abajo jugador A
+		moverJugador(1, Down);
 		break;
 	case CODE_z:
 		//nueva pelota tipo 1 jugador A
@@ -83,9 +84,11 @@ void atender_teclado(uint8_t tecla_presionada){
 		break;
 	case CODE_i:
 		//mover hacia arriba jugador B
+		moverJugador(0, Up);
 		break;
 	case CODE_k:
 		//mover hacia abajo jugador B
+		moverJugador(0, Down);
 		break;
 	case CODE_b:
 		//nueva pelota tipo 1 jugador B
@@ -99,7 +102,7 @@ void atender_teclado(uint8_t tecla_presionada){
 	}
 }
 
-void moverJugadorEnVertical(uint32_t esJugadorA, e_action_t movimientoAEjecutar){
+void moverJugador(uint32_t esJugadorA, e_action_t movimientoAEjecutar){
 	uint32_t altura; 
 	if(esJugadorA){
 		altura = alturaJugadorA;
@@ -121,19 +124,26 @@ void moverJugadorEnVertical(uint32_t esJugadorA, e_action_t movimientoAEjecutar)
 		//cambiar variables de altura
 		alturaJugadorA = altura;
 		//dibujar jugador
-		
+		//limpiamos borde izquierdo
+		screen_drawBox(0, 0, 40, 1, 0x32, C_BG_GREEN + C_FG_GREEN);
+
+		//ahora dibujo al jugador A
+		screen_drawBox(alturaJugadorA - 3, 0, 7, 1, 0x32, 0xCC);
 	} else {
 		alturaJugadorB = altura;
-	}	
+		//dibujar jugador
+		//limpiamos borde derecho
+		screen_drawBox(0, 79, 40, 1, 0x32, C_BG_GREEN + C_FG_GREEN);
 
-
-
+		//ahora dibujo al jugador B
+		screen_drawBox(alturaJugadorB - 3, 79, 7, 1, 0x32, 0x99);
+	}
 }
 
 coordenadaPelota moverEnVertical(coordenadaPelota coordActual, e_action_t movimientoAEjecutar){
 	if(movimientoAEjecutar == Up) {
 		if(coordActual.y == 0){
-			coordActual = 0;
+			coordActual.y = 0;
 			coordActual.direccionY = !coordActual.direccionY;
 		} else {
 			coordActual.y--;
@@ -141,7 +151,7 @@ coordenadaPelota moverEnVertical(coordenadaPelota coordActual, e_action_t movimi
 
 	} else if(movimientoAEjecutar == Down) {
 		if(coordActual.y == 39){
-			coordActual = 39;
+			coordActual.y = 39;
 			coordActual.direccionY = !coordActual.direccionY;
 		} else {
 			coordActual.y++;
@@ -197,10 +207,11 @@ void dibujarPantalla(){
 			if(0 <= i && i <= 3) {
 				atributos = 0xCC; // la pelota era del jugador A. So, la pelota es del color de A
 			} else {
-				atributos = 0x99
+				atributos = 0x99;
 			}
 			print("*", coordActual.x, coordActual.y, atributos);
 		}
+	}
 }
 
 void actualizarMovimientoPendiente(e_action_t action){

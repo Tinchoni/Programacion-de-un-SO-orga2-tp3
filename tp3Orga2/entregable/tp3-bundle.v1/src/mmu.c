@@ -145,7 +145,7 @@ uint32_t mmu_initKernelDir() {
 		//  sino, ver caso en mmu_mapPage donde nos encargamos de shiftear 12 bits de un puntero a memoria fisica del kernel
 		//  que conseguiamos llamando a mmu_nextFreeKernelPage.
 		table[i].direccion_pagina = i; 
-
+	}
 	/*
 	
 	direccion lineal:
