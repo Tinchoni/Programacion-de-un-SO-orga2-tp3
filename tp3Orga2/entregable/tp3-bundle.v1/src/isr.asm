@@ -19,6 +19,7 @@ extern setHandlerValue
 extern actualizarMovimientoPendiente
 extern saltarDeHandlerATarea
 extern print_exception 
+extern dibujarPantalla
 
 ;;
 ;; Definición de MACROS
@@ -78,13 +79,33 @@ ISR 31
 ;; -------------------------------------------------------------------------- ;;
 global _isr32
 
+offset: DD 0
+selector: DW 0
+
 _isr32:
     pushad
+    call pic_finish1
     call nextClock
     ;cuando el clock cambie vamos a llamar al scheduler porque... para eso teniamos el clock y el scheduler, no?
     ;aca vamos a swappear de tarea 
-    ;call sched_nextTask
-    call pic_finish1
+    call sched_nextTask
+
+    mov [selector], ax
+    str cx
+    cmp cx, ax
+    je .fin
+    cmp ax, 0
+    je .dibujarPantalla
+    jmp far [offset]
+    
+    .dibujarPantalla:
+    call dibujarPantalla 
+    str cx
+    cmp cx, 20<<3
+    je .fin
+    jmp (20<<3):666 ;idle diabolico
+
+    .fin:
     popad
     iret
 
@@ -96,8 +117,10 @@ _isr33:
     pushad ;preservamos TODES les registres
     in al, 0x60
     push eax
-    call print_number
+    ;call print_number
+    call atender_teclado
     add esp, 4
+
     .salir:
     call pic_finish1
     popad

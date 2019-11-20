@@ -21,7 +21,7 @@
 
 %include "print.mac"
 %define CARACTER_LIMPITO 32 << 8 | (0x0 << 4) | 0x0
-%define KERNEL_PAGE_DIR 0x2B000 
+%define KERNEL_PAGE_DIR 0x2B000  
 
 global start
 global saltarATarea
@@ -39,6 +39,7 @@ extern mmu_init
 extern mmu_initTaskDir
 extern tss_init
 extern print
+extern sched_init
 extern game_init
 
 ;; Saltear seccion de datos
@@ -149,7 +150,7 @@ start:
     push 40    ; fInit, empieza en la fila 40
     call screen_drawBox ; screen_drawBox(40, 0, 10, 80, 0x32, 0x00)
 
-    ; ahora imprimo dos rectangulos, uno rojo y otro azul (atributos 0x44 y 0x11)
+    ; ahora imprimo dos rectangulos, uno rojo y otro azul (atributos 0xCC y 0x99)
     push 0xCC ; attr
     push 0x32 ; character, cualquiera, total se pinta gris (?). es invisible.
     push 38   ; cSize
@@ -172,7 +173,7 @@ start:
     push 1   ; cSize
     push 7   ; fSize
     push 0    ; cInit
-    push 17    ; fInit
+    push 20    ; fInit
     call screen_drawBox ; screen_drawBox(17, 0, 7, 1, 0x32, 0xCC)
 
     push 0x99 ; attr
@@ -213,7 +214,7 @@ start:
     call mmu_initKernelDir
 
     ; Imprimir numero de libreta de los integrantes:
-    print_text_pm LU, LU_size, 0x07, 0, 0 ; los parametros son los explicados mas arriba al imprimir el mensaje de bienvenida.
+    ; print_text_pm LU, LU_size, 0x07, 0, 0 ; los parametros son los explicados mas arriba al imprimir el mensaje de bienvenida.
 
 
     ; Cargar directorio de paginas
@@ -266,6 +267,7 @@ start:
 
     ; Inicializar el scheduler
 
+    call sched_init
     ; ---------------------------- Fin Clase 5 --------------------------------
 
 
@@ -303,7 +305,7 @@ start:
 
     ; Saltar a la primera tarea: Idle
 
-    jmp (20<<3):0 ; same pero GDT_TSS_IDLE
+    ;jmp (20<<3):0 ; same pero GDT_TSS_IDLE
 
     ;NOSOTROS - inicializamos el juego.
     call game_init

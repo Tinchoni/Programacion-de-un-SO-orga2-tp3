@@ -18,6 +18,8 @@ typedef void (*f_handler_t)();
 typedef struct str_coordenadaPelota {
     uint32_t  x;
     uint32_t  y;
+    uint32_t  direccionX; //0 = izquierda, 1 = derecha.
+    uint32_t  direccionY; //0 = no invertido, 1 = invertido
 } coordenadaPelota;
 
 
