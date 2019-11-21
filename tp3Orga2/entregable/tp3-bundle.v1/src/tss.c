@@ -37,7 +37,7 @@
 #define tasksAndHandlers_ebp 0
 #define tasksAndHandlers_esi 0
 #define tasksAndHandlers_edi 0
-#define tasksAndHandlers_es 0
+#define tasksAndHandlers_es (GDT_DATOS_USUARIO << 3)
 #define tasksAndHandlers_unused4 0
 #define tasksAndHandlers_cs (GDT_CODIGO_USUARIO << 3)
 #define tasksAndHandlers_unused5 0
@@ -45,9 +45,9 @@
 #define tasksAndHandlers_unused6 0
 #define tasksAndHandlers_ds (GDT_DATOS_USUARIO << 3)
 #define tasksAndHandlers_unused7 0
-#define tasksAndHandlers_fs 0
+#define tasksAndHandlers_fs (GDT_DATOS_USUARIO << 3)
 #define tasksAndHandlers_unused8 0
-#define tasksAndHandlers_gs 0
+#define tasksAndHandlers_gs (GDT_DATOS_USUARIO << 3)
 #define tasksAndHandlers_unused9 0
 #define tasksAndHandlers_ldt 0
 #define tasksAndHandlers_unused10 0
@@ -58,9 +58,6 @@
 tss tss_initial;
 tss tss_idle;
 
-
-uint32_t kernelLevelTasksStacks[6]; // array de esp0's
-uint32_t userLevelTasksCodeAndStacks[6]; // array de CR3's
 
 tss tss_A1;	
 tss tss_A2;	

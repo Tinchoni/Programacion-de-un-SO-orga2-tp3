@@ -90,13 +90,15 @@ _isr32:
     ;cuando el clock cambie vamos a llamar al scheduler porque... para eso teniamos el clock y el scheduler, no?
     ;aca vamos a swappear de tarea 
     call sched_nextTask
-
+    xchg bx, bx
     mov [selector], ax
     str cx
     cmp cx, ax
     je .fin
     cmp ax, 0
     je .dibujarPantalla
+
+    ;else tengo que saltar, efectivamente, a la siguiente tarea
     jmp far [offset]
     
     .dibujarPantalla:
@@ -117,7 +119,7 @@ _isr33:
     pushad ;preservamos TODES les registres
     in al, 0x60
     push eax
-    call print_number
+    ;call print_number
     call atender_teclado
     add esp, 4
 

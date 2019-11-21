@@ -14,6 +14,9 @@
 #include "gdt.h"
 #include "mmu.h"
 
+uint32_t kernelLevelTasksStacks[6]; // array de esp0's
+uint32_t userLevelTasksCodeAndStacks[6]; // array de CR3's
+
 typedef struct str_tss {
     uint16_t  ptl;
     uint16_t  unused0;

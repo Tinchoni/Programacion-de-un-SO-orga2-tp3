@@ -29,21 +29,27 @@ e_action_t movimientosPendientesPorSlot[6];
 void game_init() {
 	alturaJugadorA = 20;
 	alturaJugadorB = 20;
+	crearPelota(0, 3);
 }
 
-void crearPelota(uint32_t slot){
-	if( slot < 3 ){
-		//la pelota es del jugador A
-		coordsPelotasPorSlot[slot].x = 2; // arranca justo adelante del jugador
-		coordsPelotasPorSlot[slot].y = alturaJugadorA; // arranca en el centro de la posicion del jugador
-		coordsPelotasPorSlot[slot].direccionX = 1; // 1 = derecha
-		coordsPelotasPorSlot[slot].direccionY = 0; // 0 = no invertida
-	} else {
-		//pelota del jugador B
-		coordsPelotasPorSlot[slot].x = 78; 
-		coordsPelotasPorSlot[slot].y = alturaJugadorB;
-		coordsPelotasPorSlot[slot].direccionX = 0; // 0 = izquierda
-		coordsPelotasPorSlot[slot].direccionY = 0; // 0 = no invertida
+void crearPelota(uint32_t esJugadorA, uint32_t tipoDePelota){
+	uint32_t slotLibre = dameSlotLibre(esJugadorA);
+	if(slotLibre < 6){
+		if( esJugadorA ){
+			//la pelota es del jugador A
+			coordsPelotasPorSlot[slotLibre].x = 1; // arranca justo adelante del jugador
+			coordsPelotasPorSlot[slotLibre].y = alturaJugadorA; // arranca en el centro de la posicion del jugador
+			coordsPelotasPorSlot[slotLibre].direccionX = 1; // 1 = derecha
+			coordsPelotasPorSlot[slotLibre].direccionY = 0; // 0 = no invertida
+		} else {
+			//pelota del jugador B
+			coordsPelotasPorSlot[slotLibre].x = 78; 
+			coordsPelotasPorSlot[slotLibre].y = alturaJugadorB;
+			coordsPelotasPorSlot[slotLibre].direccionX = 0; // 0 = izquierda
+			coordsPelotasPorSlot[slotLibre].direccionY = 0; // 0 = no invertida
+		}
+		//pongo como viva la pelota
+		pelotas_vivas[slotLibre] = 1;
 	}
 }
 
@@ -64,41 +70,46 @@ e_action_t invertir(e_action_t accion, uint32_t invierte) {
 
 void atender_teclado(uint8_t tecla_presionada){
 	switch(tecla_presionada){
-		
-	case CODE_w:
-		//mover hacia arriba jugador A
-		moverJugador(1, Up);
-		break;
-	case CODE_s:
-		//mover hacia abajo jugador A
-		moverJugador(1, Down);
-		break;
-	case CODE_z:
-		//nueva pelota tipo 1 jugador A
-		break;
-	case CODE_x:
-		//nueva pelota tipo 2 jugador A
-		break;
-	case CODE_c:
-		//nueva pelota tipo 3 jugador A
-		break;
-	case CODE_i:
-		//mover hacia arriba jugador B
-		moverJugador(0, Up);
-		break;
-	case CODE_k:
-		//mover hacia abajo jugador B
-		moverJugador(0, Down);
-		break;
-	case CODE_b:
-		//nueva pelota tipo 1 jugador B
-		break;
-	case CODE_n:
-		//nueva pelota tipo 2 jugador B
-		break;
-	case CODE_m:
-		//nueva pelota tipo 3 jugador B
-		break;
+		case CODE_w:
+			//mover hacia arriba jugador A
+			moverJugador(1, Up);
+			break;
+		case CODE_s:
+			//mover hacia abajo jugador A
+			moverJugador(1, Down);
+			break;
+		case CODE_z:
+			//nueva pelota tipo 1 jugador A
+			crearPelota(1, 0);
+			break;
+		case CODE_x:
+			//nueva pelota tipo 2 jugador A
+			crearPelota(1, 1);
+			break;
+		case CODE_c:
+			//nueva pelota tipo 3 jugador A
+			crearPelota(1, 2);
+			break;
+		case CODE_i:
+			//mover hacia arriba jugador B
+			moverJugador(0, Up);
+			break;
+		case CODE_k:
+			//mover hacia abajo jugador B
+			moverJugador(0, Down);
+			break;
+		case CODE_b:
+			//nueva pelota tipo 1 jugador B
+			crearPelota(0, 3);
+			break;
+		case CODE_n:
+			//nueva pelota tipo 2 jugador B
+			crearPelota(0, 4);
+			break;
+		case CODE_m:
+			//nueva pelota tipo 3 jugador B
+			crearPelota(0, 5);
+			break;
 	}
 }
 
@@ -193,21 +204,25 @@ coordenadaPelota moverEnHorizontal(coordenadaPelota coordActual) {
 }
 
 void dibujarPantalla(){
-	screen_drawBox(0, 1, 40, 78, 0x32, 0x88); // limpio el tablero (en particular, las pelotas)
-	for(uint32_t i = 0; i < 7; i++){
+	//screen_drawBox(0, 1, 40, 78, 0x32, 0x88); // limpio el tablero (en particular, las pelotas)
+	for(uint32_t i = 0; i <= 5; i++){
 		coordenadaPelota coordActual = coordsPelotasPorSlot[i];
 		e_action_t movimientoAEjecutar = invertir(movimientosPendientesPorSlot[i], coordActual.direccionY);
-		
+
+
+		//aca calculamos como va a ser el movimiento en vertical en el siguiente tick del juego		
 		coordActual = moverEnVertical(coordActual, movimientoAEjecutar);
 		
+		// same para horizontal
 		coordActual = moverEnHorizontal(coordActual);
 
-		if(pelotas_vivas[i]) {
+		// aca dibujamos en pantalla ese resultado.
+		if(pelotas_vivas[i] != 0) {
 			uint8_t atributos;
 			if(0 <= i && i <= 3) {
-				atributos = 0xCC; // la pelota era del jugador A. So, la pelota es del color de A
+				atributos = C_BG_DARK_GREY + C_FG_LIGHT_RED; // la pelota era del jugador A. So, la pelota es del color de A
 			} else {
-				atributos = 0x99;
+				atributos = C_BG_DARK_GREY + C_FG_LIGHT_BLUE;
 			}
 			print("*", coordActual.x, coordActual.y, atributos);
 		}

@@ -36,13 +36,35 @@ void saltarDeHandlerATarea(){
 	saltarATarea(GDTEntryBySlot(quantum) << 3);
 }
 
+uint32_t dameSlotLibre(uint32_t esJugadorA){
+	uint32_t response = 9999;
+	if(esJugadorA){
+		uint32_t laEncontre = 0;
+		for(uint32_t i = 0; i < 3 && !laEncontre; i++){
+			if(!pelotas_vivas[i]){
+				laEncontre = 1;
+				response = i;
+			}
+		}	
+	} else {
+		uint32_t laEncontre = 0;
+		for(uint32_t i = 3; i < 6 && !laEncontre; i++){
+			if(!pelotas_vivas[i]){
+				laEncontre = 1;
+				response = i;
+			}
+		}
+	}
+	return response;
+}
+
 
 void sched_init() {
 	//aca vamos a armar las estructuras necesarias 
 	//para poder saber que handlers estan seteados y 
 	//que tareas estan activas.
 	quantum = -1;
-	for(uint32_t i = 0; i < 7; i++){
+	for(uint32_t i = 0; i <= 5; i++){
 		// todos los handlers empiezan inactivos.
 		handlers_activos[i] = 0;
 		// todas las pelotas empiezan muertas.
