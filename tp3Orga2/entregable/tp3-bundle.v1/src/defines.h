@@ -48,8 +48,8 @@
 #define GDT_TSS_B3  				26
 
 #define GDT_TSS_HANDLER_A1  		27
-#define GDT_TSS_HANDLER_A3  		28
-#define GDT_TSS_HANDLER_A2  		29
+#define GDT_TSS_HANDLER_A2  		28
+#define GDT_TSS_HANDLER_A3  		29
 
 #define GDT_TSS_HANDLER_B1  		30
 #define GDT_TSS_HANDLER_B2  		31

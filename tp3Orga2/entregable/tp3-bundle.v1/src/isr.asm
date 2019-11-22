@@ -31,6 +31,7 @@ extern atender_teclado
 global _isr%1
 
 _isr%1:
+    ;xchg bx, bx
     mov eax, %1
     push eax
     call print_exception
@@ -90,7 +91,8 @@ _isr32:
     ;cuando el clock cambie vamos a llamar al scheduler porque... para eso teniamos el clock y el scheduler, no?
     ;aca vamos a swappear de tarea 
     call sched_nextTask
-    xchg bx, bx
+    ;xchg bx, bx
+    .sigo:
     mov [selector], ax
     str cx
     cmp cx, ax
@@ -99,8 +101,10 @@ _isr32:
     je .dibujarPantalla
 
     ;else tengo que saltar, efectivamente, a la siguiente tarea
+    ;xchg bx, bx
+    ;jmp (21<<3):0
     jmp far [offset]
-    
+    jmp .fin
     .dibujarPantalla:
     call dibujarPantalla 
     str cx

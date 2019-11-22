@@ -31,23 +31,26 @@
 #define tasksAndHandlers_edx 0
 #define tasksAndHandlers_ebx 0
 
-#define tasks_esp (0x08000000 + 7*1024 - 1) /*porque la pila de las tareas empieza en 0x08000000 + 7kb.*/
-#define handlers_esp (0x08000000 + 8*1024 - 1) /* porque bla, analogo, ver figura 5*/
+#define tasks_esp (0x08000000 + 7*1024) /*porque la pila de las tareas empieza en 0x08000000 + 7kb.*/
+#define handlers_esp (0x08000000 + 8*1024) /* porque bla, analogo, ver figura 5*/
 
-#define tasksAndHandlers_ebp 0
+#define tasks_ebp (0x08000000 + 7*1024)
+#define handlers_ebp (0x08000000 + 8*1024)
+
+
 #define tasksAndHandlers_esi 0
 #define tasksAndHandlers_edi 0
-#define tasksAndHandlers_es (GDT_DATOS_USUARIO << 3)
+#define tasksAndHandlers_es (GDT_DATOS_USUARIO << 3) + 3
 #define tasksAndHandlers_unused4 0
-#define tasksAndHandlers_cs (GDT_CODIGO_USUARIO << 3)
+#define tasksAndHandlers_cs (GDT_CODIGO_USUARIO << 3) + 3
 #define tasksAndHandlers_unused5 0
-#define tasksAndHandlers_ss (GDT_DATOS_USUARIO << 3)
+#define tasksAndHandlers_ss (GDT_DATOS_USUARIO << 3) + 3
 #define tasksAndHandlers_unused6 0
-#define tasksAndHandlers_ds (GDT_DATOS_USUARIO << 3)
+#define tasksAndHandlers_ds (GDT_DATOS_USUARIO << 3) + 3
 #define tasksAndHandlers_unused7 0
-#define tasksAndHandlers_fs (GDT_DATOS_USUARIO << 3)
+#define tasksAndHandlers_fs (GDT_DATOS_USUARIO << 3) + 3
 #define tasksAndHandlers_unused8 0
-#define tasksAndHandlers_gs (GDT_DATOS_USUARIO << 3)
+#define tasksAndHandlers_gs (GDT_DATOS_USUARIO << 3) + 3
 #define tasksAndHandlers_unused9 0
 #define tasksAndHandlers_ldt 0
 #define tasksAndHandlers_unused10 0
@@ -116,7 +119,6 @@ void tss_init() {
     tss_idle.iomap = (uint16_t) 0;
 
     for(uint32_t i= 0; i < 6; i++){
-    	userLevelTasksCodeAndStacks[i] = mmu_initTaskDir(i);
     	kernelLevelTasksStacks[i] = mmu_nextFreeKernelPage();
     }
     // ahora ya esta seteado el arreglo de CR3's y el de ESP0's
@@ -229,12 +231,12 @@ void tss_init() {
 
 
 //funciones que llenan la TSS de cada tarea
-void llenarTSSA1(uint32_t tipoDeTarea){
+void llenarTSSA1(uint32_t slotDeTarea){
 	tss_A1.ptl = tasksAndHandlers_ptl;
     tss_A1.unused0 = tasksAndHandlers_unused0;
     
     // esp0 para tarea es (por figura 5) 
-    tss_A1.esp0 = kernelLevelTasksStacks[tipoDeTarea] + 2 * 1024 - 1;
+    tss_A1.esp0 = kernelLevelTasksStacks[slotDeTarea] + 2 * 1024 - 1;
     tss_A1.ss0 = tasksAndHandlers_ss0;
     tss_A1.unused1 = tasksAndHandlers_unused1;
     tss_A1.esp1 = tasksAndHandlers_esp1;
@@ -243,7 +245,7 @@ void llenarTSSA1(uint32_t tipoDeTarea){
     tss_A1.esp2 = tasksAndHandlers_esp2;
     tss_A1.ss2 = tasksAndHandlers_ss2;
     tss_A1.unused3 = tasksAndHandlers_unused3;
-    tss_A1.cr3 = userLevelTasksCodeAndStacks[tipoDeTarea];
+    tss_A1.cr3 = userLevelTasksCodeAndStacks[slotDeTarea];
     tss_A1.eip = tasks_eip;
     tss_A1.eflags = tasksAndHandlers_eflags;
     tss_A1.eax = tasksAndHandlers_eax;
@@ -251,7 +253,7 @@ void llenarTSSA1(uint32_t tipoDeTarea){
     tss_A1.edx = tasksAndHandlers_edx;
     tss_A1.ebx = tasksAndHandlers_ebx;
     tss_A1.esp = tasks_esp;
-    tss_A1.ebp = tasksAndHandlers_ebp;
+    tss_A1.ebp = tasks_ebp;
     tss_A1.esi = tasksAndHandlers_esi;
     tss_A1.edi = tasksAndHandlers_edi;
     tss_A1.es = tasksAndHandlers_es;
@@ -271,12 +273,12 @@ void llenarTSSA1(uint32_t tipoDeTarea){
     tss_A1.dtrap = tasksAndHandlers_dtrap;
     tss_A1.iomap = tasksAndHandlers_iomap;
 }
-void llenarTSSA1_Handler(uint32_t tipoDeTarea, uint32_t eip){
+void llenarTSSA1_Handler(uint32_t slotDeTarea, uint32_t eip){
 	tss_HANDLER_A1.ptl = tasksAndHandlers_ptl;
     tss_HANDLER_A1.unused0 = tasksAndHandlers_unused0;
     
     //esp0 para handler es (por figura 5)
-    tss_HANDLER_A1.esp0 = kernelLevelTasksStacks[tipoDeTarea] + 4 * 1024 - 1;
+    tss_HANDLER_A1.esp0 = kernelLevelTasksStacks[slotDeTarea] + 4 * 1024 - 1;
 
     tss_HANDLER_A1.ss0 = tasksAndHandlers_ss0;
     tss_HANDLER_A1.unused1 = tasksAndHandlers_unused1;
@@ -294,7 +296,7 @@ void llenarTSSA1_Handler(uint32_t tipoDeTarea, uint32_t eip){
     tss_HANDLER_A1.edx = tasksAndHandlers_edx;
     tss_HANDLER_A1.ebx = tasksAndHandlers_ebx;
     tss_HANDLER_A1.esp = handlers_esp;
-    tss_HANDLER_A1.ebp = tasksAndHandlers_ebp;
+    tss_HANDLER_A1.ebp = handlers_ebp;
     tss_HANDLER_A1.esi = tasksAndHandlers_esi;
     tss_HANDLER_A1.edi = tasksAndHandlers_edi;
     tss_HANDLER_A1.es = tasksAndHandlers_es;
@@ -315,12 +317,12 @@ void llenarTSSA1_Handler(uint32_t tipoDeTarea, uint32_t eip){
     tss_HANDLER_A1.iomap = tasksAndHandlers_iomap;
 }
 
-void llenarTSSA2(uint32_t tipoDeTarea){
+void llenarTSSA2(uint32_t slotDeTarea){
 	tss_A2.ptl = tasksAndHandlers_ptl;
     tss_A2.unused0 = tasksAndHandlers_unused0;
     
     // esp0 para tarea es (por figura 5) 
-    tss_A2.esp0 = kernelLevelTasksStacks[tipoDeTarea] + 2 * 1024 - 1;
+    tss_A2.esp0 = kernelLevelTasksStacks[slotDeTarea] + 2 * 1024 - 1;
     tss_A2.ss0 = tasksAndHandlers_ss0;
     tss_A2.unused1 = tasksAndHandlers_unused1;
     tss_A2.esp1 = tasksAndHandlers_esp1;
@@ -329,7 +331,7 @@ void llenarTSSA2(uint32_t tipoDeTarea){
     tss_A2.esp2 = tasksAndHandlers_esp2;
     tss_A2.ss2 = tasksAndHandlers_ss2;
     tss_A2.unused3 = tasksAndHandlers_unused3;
-    tss_A2.cr3 = userLevelTasksCodeAndStacks[tipoDeTarea];
+    tss_A2.cr3 = userLevelTasksCodeAndStacks[slotDeTarea];
     tss_A2.eip = tasks_eip;
     tss_A2.eflags = tasksAndHandlers_eflags;
     tss_A2.eax = tasksAndHandlers_eax;
@@ -337,7 +339,7 @@ void llenarTSSA2(uint32_t tipoDeTarea){
     tss_A2.edx = tasksAndHandlers_edx;
     tss_A2.ebx = tasksAndHandlers_ebx;
     tss_A2.esp = tasks_esp;
-    tss_A2.ebp = tasksAndHandlers_ebp;
+    tss_A2.ebp = tasks_ebp;
     tss_A2.esi = tasksAndHandlers_esi;
     tss_A2.edi = tasksAndHandlers_edi;
     tss_A2.es = tasksAndHandlers_es;
@@ -357,12 +359,12 @@ void llenarTSSA2(uint32_t tipoDeTarea){
     tss_A2.dtrap = tasksAndHandlers_dtrap;
     tss_A2.iomap = tasksAndHandlers_iomap;
 }
-void llenarTSSA2_Handler(uint32_t tipoDeTarea, uint32_t eip){
+void llenarTSSA2_Handler(uint32_t slotDeTarea, uint32_t eip){
 	tss_HANDLER_A2.ptl = tasksAndHandlers_ptl;
     tss_HANDLER_A2.unused0 = tasksAndHandlers_unused0;
     
     //esp0 para handler es (por figura 5)
-    tss_HANDLER_A2.esp0 = kernelLevelTasksStacks[tipoDeTarea] + 4 * 1024 - 1;
+    tss_HANDLER_A2.esp0 = kernelLevelTasksStacks[slotDeTarea] + 4 * 1024 - 1;
 
     tss_HANDLER_A2.ss0 = tasksAndHandlers_ss0;
     tss_HANDLER_A2.unused1 = tasksAndHandlers_unused1;
@@ -380,7 +382,7 @@ void llenarTSSA2_Handler(uint32_t tipoDeTarea, uint32_t eip){
     tss_HANDLER_A2.edx = tasksAndHandlers_edx;
     tss_HANDLER_A2.ebx = tasksAndHandlers_ebx;
     tss_HANDLER_A2.esp = handlers_esp;
-    tss_HANDLER_A2.ebp = tasksAndHandlers_ebp;
+    tss_HANDLER_A2.ebp = handlers_ebp;
     tss_HANDLER_A2.esi = tasksAndHandlers_esi;
     tss_HANDLER_A2.edi = tasksAndHandlers_edi;
     tss_HANDLER_A2.es = tasksAndHandlers_es;
@@ -404,12 +406,12 @@ void llenarTSSA2_Handler(uint32_t tipoDeTarea, uint32_t eip){
 
 
 
-void llenarTSSA3(uint32_t tipoDeTarea){
+void llenarTSSA3(uint32_t slotDeTarea){
 	tss_A3.ptl = tasksAndHandlers_ptl;
     tss_A3.unused0 = tasksAndHandlers_unused0;
     
     // esp0 para tarea es (por figura 5) 
-    tss_A3.esp0 = kernelLevelTasksStacks[tipoDeTarea] + 2 * 1024 - 1;
+    tss_A3.esp0 = kernelLevelTasksStacks[slotDeTarea] + 2 * 1024 - 1;
     tss_A3.ss0 = tasksAndHandlers_ss0;
     tss_A3.unused1 = tasksAndHandlers_unused1;
     tss_A3.esp1 = tasksAndHandlers_esp1;
@@ -418,7 +420,7 @@ void llenarTSSA3(uint32_t tipoDeTarea){
     tss_A3.esp2 = tasksAndHandlers_esp2;
     tss_A3.ss2 = tasksAndHandlers_ss2;
     tss_A3.unused3 = tasksAndHandlers_unused3;
-    tss_A3.cr3 = userLevelTasksCodeAndStacks[tipoDeTarea];
+    tss_A3.cr3 = userLevelTasksCodeAndStacks[slotDeTarea];
     tss_A3.eip = tasks_eip;
     tss_A3.eflags = tasksAndHandlers_eflags;
     tss_A3.eax = tasksAndHandlers_eax;
@@ -426,7 +428,7 @@ void llenarTSSA3(uint32_t tipoDeTarea){
     tss_A3.edx = tasksAndHandlers_edx;
     tss_A3.ebx = tasksAndHandlers_ebx;
     tss_A3.esp = tasks_esp;
-    tss_A3.ebp = tasksAndHandlers_ebp;
+    tss_A3.ebp = tasks_ebp;
     tss_A3.esi = tasksAndHandlers_esi;
     tss_A3.edi = tasksAndHandlers_edi;
     tss_A3.es = tasksAndHandlers_es;
@@ -446,12 +448,12 @@ void llenarTSSA3(uint32_t tipoDeTarea){
     tss_A3.dtrap = tasksAndHandlers_dtrap;
     tss_A3.iomap = tasksAndHandlers_iomap;
 }
-void llenarTSSA3_Handler(uint32_t tipoDeTarea, uint32_t eip){
+void llenarTSSA3_Handler(uint32_t slotDeTarea, uint32_t eip){
 	tss_HANDLER_A3.ptl = tasksAndHandlers_ptl;
     tss_HANDLER_A3.unused0 = tasksAndHandlers_unused0;
     
     //esp0 para handler es (por figura 5)
-    tss_HANDLER_A3.esp0 = kernelLevelTasksStacks[tipoDeTarea] + 4 * 1024 - 1;
+    tss_HANDLER_A3.esp0 = kernelLevelTasksStacks[slotDeTarea] + 4 * 1024 - 1;
 
     tss_HANDLER_A3.ss0 = tasksAndHandlers_ss0;
     tss_HANDLER_A3.unused1 = tasksAndHandlers_unused1;
@@ -469,7 +471,7 @@ void llenarTSSA3_Handler(uint32_t tipoDeTarea, uint32_t eip){
     tss_HANDLER_A3.edx = tasksAndHandlers_edx;
     tss_HANDLER_A3.ebx = tasksAndHandlers_ebx;
     tss_HANDLER_A3.esp = handlers_esp;
-    tss_HANDLER_A3.ebp = tasksAndHandlers_ebp;
+    tss_HANDLER_A3.ebp = handlers_ebp;
     tss_HANDLER_A3.esi = tasksAndHandlers_esi;
     tss_HANDLER_A3.edi = tasksAndHandlers_edi;
     tss_HANDLER_A3.es = tasksAndHandlers_es;
@@ -493,12 +495,12 @@ void llenarTSSA3_Handler(uint32_t tipoDeTarea, uint32_t eip){
 
 
 
-void llenarTSSB1(uint32_t tipoDeTarea){
+void llenarTSSB1(uint32_t slotDeTarea){
 	tss_B1.ptl = tasksAndHandlers_ptl;
     tss_B1.unused0 = tasksAndHandlers_unused0;
     
     // esp0 para tarea es (por figura 5) 
-    tss_B1.esp0 = kernelLevelTasksStacks[tipoDeTarea] + 2 * 1024 - 1;
+    tss_B1.esp0 = kernelLevelTasksStacks[slotDeTarea] + 2 * 1024 - 1;
     tss_B1.ss0 = tasksAndHandlers_ss0;
     tss_B1.unused1 = tasksAndHandlers_unused1;
     tss_B1.esp1 = tasksAndHandlers_esp1;
@@ -507,7 +509,7 @@ void llenarTSSB1(uint32_t tipoDeTarea){
     tss_B1.esp2 = tasksAndHandlers_esp2;
     tss_B1.ss2 = tasksAndHandlers_ss2;
     tss_B1.unused3 = tasksAndHandlers_unused3;
-    tss_B1.cr3 = userLevelTasksCodeAndStacks[tipoDeTarea];
+    tss_B1.cr3 = userLevelTasksCodeAndStacks[slotDeTarea];
     tss_B1.eip = tasks_eip;
     tss_B1.eflags = tasksAndHandlers_eflags;
     tss_B1.eax = tasksAndHandlers_eax;
@@ -515,7 +517,7 @@ void llenarTSSB1(uint32_t tipoDeTarea){
     tss_B1.edx = tasksAndHandlers_edx;
     tss_B1.ebx = tasksAndHandlers_ebx;
     tss_B1.esp = tasks_esp;
-    tss_B1.ebp = tasksAndHandlers_ebp;
+    tss_B1.ebp = tasks_ebp;
     tss_B1.esi = tasksAndHandlers_esi;
     tss_B1.edi = tasksAndHandlers_edi;
     tss_B1.es = tasksAndHandlers_es;
@@ -535,12 +537,12 @@ void llenarTSSB1(uint32_t tipoDeTarea){
     tss_B1.dtrap = tasksAndHandlers_dtrap;
     tss_B1.iomap = tasksAndHandlers_iomap;
 }
-void llenarTSSB1_Handler(uint32_t tipoDeTarea, uint32_t eip){
+void llenarTSSB1_Handler(uint32_t slotDeTarea, uint32_t eip){
 	tss_HANDLER_B1.ptl = tasksAndHandlers_ptl;
     tss_HANDLER_B1.unused0 = tasksAndHandlers_unused0;
     
     //esp0 para handler es (por figura 5)
-    tss_HANDLER_B1.esp0 = kernelLevelTasksStacks[tipoDeTarea] + 4 * 1024 - 1;
+    tss_HANDLER_B1.esp0 = kernelLevelTasksStacks[slotDeTarea] + 4 * 1024 - 1;
 
     tss_HANDLER_B1.ss0 = tasksAndHandlers_ss0;
     tss_HANDLER_B1.unused1 = tasksAndHandlers_unused1;
@@ -558,7 +560,7 @@ void llenarTSSB1_Handler(uint32_t tipoDeTarea, uint32_t eip){
     tss_HANDLER_B1.edx = tasksAndHandlers_edx;
     tss_HANDLER_B1.ebx = tasksAndHandlers_ebx;
     tss_HANDLER_B1.esp = handlers_esp;
-    tss_HANDLER_B1.ebp = tasksAndHandlers_ebp;
+    tss_HANDLER_B1.ebp = handlers_ebp;
     tss_HANDLER_B1.esi = tasksAndHandlers_esi;
     tss_HANDLER_B1.edi = tasksAndHandlers_edi;
     tss_HANDLER_B1.es = tasksAndHandlers_es;
@@ -584,12 +586,12 @@ void llenarTSSB1_Handler(uint32_t tipoDeTarea, uint32_t eip){
 
 
 
-void llenarTSSB2(uint32_t tipoDeTarea){
+void llenarTSSB2(uint32_t slotDeTarea){
 	tss_B2.ptl = tasksAndHandlers_ptl;
     tss_B2.unused0 = tasksAndHandlers_unused0;
     
     // esp0 para tarea es (por figura 5) 
-    tss_B2.esp0 = kernelLevelTasksStacks[tipoDeTarea] + 2 * 1024 - 1;
+    tss_B2.esp0 = kernelLevelTasksStacks[slotDeTarea] + 2 * 1024 - 1;
     tss_B2.ss0 = tasksAndHandlers_ss0;
     tss_B2.unused1 = tasksAndHandlers_unused1;
     tss_B2.esp1 = tasksAndHandlers_esp1;
@@ -598,7 +600,7 @@ void llenarTSSB2(uint32_t tipoDeTarea){
     tss_B2.esp2 = tasksAndHandlers_esp2;
     tss_B2.ss2 = tasksAndHandlers_ss2;
     tss_B2.unused3 = tasksAndHandlers_unused3;
-    tss_B2.cr3 = userLevelTasksCodeAndStacks[tipoDeTarea];
+    tss_B2.cr3 = userLevelTasksCodeAndStacks[slotDeTarea];
     tss_B2.eip = tasks_eip;
     tss_B2.eflags = tasksAndHandlers_eflags;
     tss_B2.eax = tasksAndHandlers_eax;
@@ -606,7 +608,7 @@ void llenarTSSB2(uint32_t tipoDeTarea){
     tss_B2.edx = tasksAndHandlers_edx;
     tss_B2.ebx = tasksAndHandlers_ebx;
     tss_B2.esp = tasks_esp;
-    tss_B2.ebp = tasksAndHandlers_ebp;
+    tss_B2.ebp = tasks_ebp;
     tss_B2.esi = tasksAndHandlers_esi;
     tss_B2.edi = tasksAndHandlers_edi;
     tss_B2.es = tasksAndHandlers_es;
@@ -626,12 +628,12 @@ void llenarTSSB2(uint32_t tipoDeTarea){
     tss_B2.dtrap = tasksAndHandlers_dtrap;
     tss_B2.iomap = tasksAndHandlers_iomap;
 }
-void llenarTSSB2_Handler(uint32_t tipoDeTarea, uint32_t eip){
+void llenarTSSB2_Handler(uint32_t slotDeTarea, uint32_t eip){
 	tss_HANDLER_B2.ptl = tasksAndHandlers_ptl;
     tss_HANDLER_B2.unused0 = tasksAndHandlers_unused0;
     
     //esp0 para handler es (por figura 5)
-    tss_HANDLER_B2.esp0 = kernelLevelTasksStacks[tipoDeTarea] + 4 * 1024 - 1;
+    tss_HANDLER_B2.esp0 = kernelLevelTasksStacks[slotDeTarea] + 4 * 1024 - 1;
 
     tss_HANDLER_B2.ss0 = tasksAndHandlers_ss0;
     tss_HANDLER_B2.unused1 = tasksAndHandlers_unused1;
@@ -649,7 +651,7 @@ void llenarTSSB2_Handler(uint32_t tipoDeTarea, uint32_t eip){
     tss_HANDLER_B2.edx = tasksAndHandlers_edx;
     tss_HANDLER_B2.ebx = tasksAndHandlers_ebx;
     tss_HANDLER_B2.esp = handlers_esp;
-    tss_HANDLER_B2.ebp = tasksAndHandlers_ebp;
+    tss_HANDLER_B2.ebp = handlers_ebp;
     tss_HANDLER_B2.esi = tasksAndHandlers_esi;
     tss_HANDLER_B2.edi = tasksAndHandlers_edi;
     tss_HANDLER_B2.es = tasksAndHandlers_es;
@@ -674,12 +676,12 @@ void llenarTSSB2_Handler(uint32_t tipoDeTarea, uint32_t eip){
 
 
 
-void llenarTSSB3(uint32_t tipoDeTarea){
+void llenarTSSB3(uint32_t slotDeTarea){
 	tss_B3.ptl = tasksAndHandlers_ptl;
     tss_B3.unused0 = tasksAndHandlers_unused0;
     
     // esp0 para tarea es (por figura 5) 
-    tss_B3.esp0 = kernelLevelTasksStacks[tipoDeTarea] + 2 * 1024 - 1;
+    tss_B3.esp0 = kernelLevelTasksStacks[slotDeTarea] + 2 * 1024 - 1;
     tss_B3.ss0 = tasksAndHandlers_ss0;
     tss_B3.unused1 = tasksAndHandlers_unused1;
     tss_B3.esp1 = tasksAndHandlers_esp1;
@@ -688,7 +690,7 @@ void llenarTSSB3(uint32_t tipoDeTarea){
     tss_B3.esp2 = tasksAndHandlers_esp2;
     tss_B3.ss2 = tasksAndHandlers_ss2;
     tss_B3.unused3 = tasksAndHandlers_unused3;
-    tss_B3.cr3 = userLevelTasksCodeAndStacks[tipoDeTarea];
+    tss_B3.cr3 = userLevelTasksCodeAndStacks[slotDeTarea];
     tss_B3.eip = tasks_eip;
     tss_B3.eflags = tasksAndHandlers_eflags;
     tss_B3.eax = tasksAndHandlers_eax;
@@ -696,7 +698,7 @@ void llenarTSSB3(uint32_t tipoDeTarea){
     tss_B3.edx = tasksAndHandlers_edx;
     tss_B3.ebx = tasksAndHandlers_ebx;
     tss_B3.esp = tasks_esp;
-    tss_B3.ebp = tasksAndHandlers_ebp;
+    tss_B3.ebp = tasks_ebp;
     tss_B3.esi = tasksAndHandlers_esi;
     tss_B3.edi = tasksAndHandlers_edi;
     tss_B3.es = tasksAndHandlers_es;
@@ -716,12 +718,12 @@ void llenarTSSB3(uint32_t tipoDeTarea){
     tss_B3.dtrap = tasksAndHandlers_dtrap;
     tss_B3.iomap = tasksAndHandlers_iomap;
 }
-void llenarTSSB3_Handler(uint32_t tipoDeTarea, uint32_t eip){
+void llenarTSSB3_Handler(uint32_t slotDeTarea, uint32_t eip){
 	tss_HANDLER_B3.ptl = tasksAndHandlers_ptl;
     tss_HANDLER_B3.unused0 = tasksAndHandlers_unused0;
     
     //esp0 para handler es (por figura 5)
-    tss_HANDLER_B3.esp0 = kernelLevelTasksStacks[tipoDeTarea] + 4 * 1024 - 1;
+    tss_HANDLER_B3.esp0 = kernelLevelTasksStacks[slotDeTarea] + 4 * 1024 - 1;
 
     tss_HANDLER_B3.ss0 = tasksAndHandlers_ss0;
     tss_HANDLER_B3.unused1 = tasksAndHandlers_unused1;
@@ -739,7 +741,7 @@ void llenarTSSB3_Handler(uint32_t tipoDeTarea, uint32_t eip){
     tss_HANDLER_B3.edx = tasksAndHandlers_edx;
     tss_HANDLER_B3.ebx = tasksAndHandlers_ebx;
     tss_HANDLER_B3.esp = handlers_esp;
-    tss_HANDLER_B3.ebp = tasksAndHandlers_ebp;
+    tss_HANDLER_B3.ebp = handlers_ebp;
     tss_HANDLER_B3.esi = tasksAndHandlers_esi;
     tss_HANDLER_B3.edi = tasksAndHandlers_edi;
     tss_HANDLER_B3.es = tasksAndHandlers_es;
@@ -762,57 +764,59 @@ void llenarTSSB3_Handler(uint32_t tipoDeTarea, uint32_t eip){
 
 
 
-void initUserTask(uint32_t tipoDeTarea, uint32_t esHandler, uint32_t punteroARutinaHandler) {
+void initUserTask(uint32_t slotDeTarea, uint32_t esHandler, uint32_t punteroARutinaHandler) {
 
-	// con el tipo de tare recibido hago el "case-switch magico", que justamente es lo que hace la funcion mmu_initTaskDir.
-	switch(tipoDeTarea){
+	// con el slot de tare recibido hago el "case-switch magico", que justamente es lo que hace la funcion mmu_initTaskDir.
+	switch(slotDeTarea){
 		case 0:
-			//Jugador A Tipo 1
-			//Tengo que llenar la tss en cuestion para este tipo de tarea y jugador:
+			//Jugador A slot 1
+			//Tengo que llenar la tss en cuestion para este slot de tarea y jugador:
 			if(esHandler == 1) {
-				llenarTSSA1_Handler(tipoDeTarea, punteroARutinaHandler);
+				llenarTSSA1_Handler(slotDeTarea, punteroARutinaHandler);
 			} else {
-				llenarTSSA1(tipoDeTarea);
+				llenarTSSA1(slotDeTarea);
 			}
 			break;
 		case 1:
-			//Jugador A Tipo 2
+			//Jugador A slot 2
 			if(esHandler == 1) {
-				llenarTSSA2_Handler(tipoDeTarea, punteroARutinaHandler);
+				llenarTSSA2_Handler(slotDeTarea, punteroARutinaHandler);
 			} else {
-				llenarTSSA2(tipoDeTarea);
+				llenarTSSA2(slotDeTarea);
+                // print_hex((uint32_t)&tss_A2, 8, 20,22,0xC);
+                // breakpoint();
 			}
 			break;
 		case 2:
-			//Jugador A Tipo 3
+			//Jugador A slot 3
 			if(esHandler == 1) {
-				llenarTSSA3_Handler(tipoDeTarea, punteroARutinaHandler);
+				llenarTSSA3_Handler(slotDeTarea, punteroARutinaHandler);
 			} else {
-				llenarTSSA3(tipoDeTarea);
+				llenarTSSA3(slotDeTarea);
 			}
 			break;
 		case 3:
-			//Jugador B Tipo 1
+			//Jugador B slot 1
 			if(esHandler == 1) {
-				llenarTSSB1_Handler(tipoDeTarea, punteroARutinaHandler);
+				llenarTSSB1_Handler(slotDeTarea, punteroARutinaHandler);
 			} else {
-				llenarTSSB1(tipoDeTarea);
+				llenarTSSB1(slotDeTarea);
 			}
 			break;
 		case 4:
-			//Jugador B Tipo 2
+			//Jugador B slot 2
 			if(esHandler == 1) {
-				llenarTSSB2_Handler(tipoDeTarea, punteroARutinaHandler);
+				llenarTSSB2_Handler(slotDeTarea, punteroARutinaHandler);
 			} else {
-				llenarTSSB2(tipoDeTarea);
+				llenarTSSB2(slotDeTarea);
 			}
 			break;
 		case 5:
-			//Jugador B Tipo 3
+			//Jugador B slot 3
 			if(esHandler == 1) {
-				llenarTSSB3_Handler(tipoDeTarea, punteroARutinaHandler);
+				llenarTSSB3_Handler(slotDeTarea, punteroARutinaHandler);
 			} else {
-				llenarTSSB3(tipoDeTarea);
+				llenarTSSB3(slotDeTarea);
 			}
 			break;
 	}

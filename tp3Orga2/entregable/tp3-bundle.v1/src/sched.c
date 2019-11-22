@@ -87,7 +87,7 @@ int16_t sched_nextTask() {
 		} else if(pelotas_vivas[quantum] != 0) {
 			//hay una tarea viva que no tiene handler pero si esta viva
 			//asi que le toca ejecutar a ella
-			response = GDTEntryBySlot(quantum) << 3;
+			response = (GDTEntryBySlot(quantum) << 3);
 		} else {
 			//no hay handler ni tampoco tarea viva, con lo cual
 			//salto a la tarea idle

@@ -60,22 +60,35 @@ typedef struct str_tss {
 
 extern tss tss_initial;
 extern tss tss_idle;
+extern tss tss_A1;
+extern tss tss_A2;
+extern tss tss_A3;
+extern tss tss_B1;
+extern tss tss_B2;
+extern tss tss_B3;
+
+extern tss tss_HANDLER_A1; 
+extern tss tss_HANDLER_A2; 
+extern tss tss_HANDLER_A3; 
+extern tss tss_HANDLER_B1; 
+extern tss tss_HANDLER_B2; 
+extern tss tss_HANDLER_B3; 
 
 void tss_init();
 
-void initUserTask(uint32_t tipoDeTarea, uint32_t esHandler, uint32_t punteroARutinaHandler);
-void llenarTSSA1(uint32_t tipoDeTarea); 
-void llenarTSSA2(uint32_t tipoDeTarea); 
-void llenarTSSA3(uint32_t tipoDeTarea); 
-void llenarTSSA1_HANDLER(uint32_t tipoDeTarea, uint32_t eip); 
-void llenarTSSA2_HANDLER(uint32_t tipoDeTarea, uint32_t eip); 
-void llenarTSSA3_HANDLER(uint32_t tipoDeTarea, uint32_t eip); 
+void initUserTask(uint32_t slotDeTarea, uint32_t esHandler, uint32_t punteroARutinaHandler);
+void llenarTSSA1(uint32_t slotDeTarea); 
+void llenarTSSA2(uint32_t slotDeTarea); 
+void llenarTSSA3(uint32_t slotDeTarea); 
+void llenarTSSA1_HANDLER(uint32_t slotDeTarea, uint32_t eip); 
+void llenarTSSA2_HANDLER(uint32_t slotDeTarea, uint32_t eip); 
+void llenarTSSA3_HANDLER(uint32_t slotDeTarea, uint32_t eip); 
 
-void llenarTSSB1(uint32_t tipoDeTarea); 
-void llenarTSSB2(uint32_t tipoDeTarea); 
-void llenarTSSB3(uint32_t tipoDeTarea); 
-void llenarTSSB1_HANDLER(uint32_t tipoDeTarea, uint32_t eip); 
-void llenarTSSB2_HANDLER(uint32_t tipoDeTarea, uint32_t eip); 
-void llenarTSSB3_HANDLER(uint32_t tipoDeTarea, uint32_t eip);
+void llenarTSSB1(uint32_t slotDeTarea); 
+void llenarTSSB2(uint32_t slotDeTarea); 
+void llenarTSSB3(uint32_t slotDeTarea); 
+void llenarTSSB1_HANDLER(uint32_t slotDeTarea, uint32_t eip); 
+void llenarTSSB2_HANDLER(uint32_t slotDeTarea, uint32_t eip); 
+void llenarTSSB3_HANDLER(uint32_t slotDeTarea, uint32_t eip);
 
 #endif  /* !__TSS_H__ */

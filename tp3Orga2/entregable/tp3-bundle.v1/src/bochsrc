@@ -432,7 +432,7 @@ log: /tmp/bochs.log
 panic: action=ask
 error: action=report
 info: action=report
-debug: action=ignore
+debug: action=report
 #pass: action=fatal
 
 #=======================================================================

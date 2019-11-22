@@ -29,7 +29,8 @@ e_action_t movimientosPendientesPorSlot[6];
 void game_init() {
 	alturaJugadorA = 20;
 	alturaJugadorB = 20;
-	crearPelota(0, 3);
+	//crearPelota(1, 0);
+	//crearPelota(1, 0);
 }
 
 void crearPelota(uint32_t esJugadorA, uint32_t tipoDePelota){
@@ -49,7 +50,12 @@ void crearPelota(uint32_t esJugadorA, uint32_t tipoDePelota){
 			coordsPelotasPorSlot[slotLibre].direccionY = 0; // 0 = no invertida
 		}
 		//pongo como viva la pelota
+		print_dec(slotLibre, 1, 20,20,0xC);
 		pelotas_vivas[slotLibre] = 1;
+
+		userLevelTasksCodeAndStacks[slotLibre] = mmu_initTaskDir(tipoDePelota);
+		//lleno la tss de la tarea
+		initUserTask(slotLibre, 0, 0);
 	}
 }
 
@@ -219,7 +225,7 @@ void dibujarPantalla(){
 		// aca dibujamos en pantalla ese resultado.
 		if(pelotas_vivas[i] != 0) {
 			uint8_t atributos;
-			if(0 <= i && i <= 3) {
+			if(0 <= i && i <= 2) {
 				atributos = C_BG_DARK_GREY + C_FG_LIGHT_RED; // la pelota era del jugador A. So, la pelota es del color de A
 			} else {
 				atributos = C_BG_DARK_GREY + C_FG_LIGHT_BLUE;
@@ -227,6 +233,7 @@ void dibujarPantalla(){
 			print("*", coordActual.x, coordActual.y, atributos);
 		}
 	}
+
 }
 
 void actualizarMovimientoPendiente(e_action_t action){

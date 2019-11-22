@@ -301,14 +301,14 @@ start:
 
     
     ; Habilitar interrupciones
-    sti 
-
-    ; Saltar a la primera tarea: Idle
-
-    ;jmp (20<<3):0 ; same pero GDT_TSS_IDLE
 
     ;NOSOTROS - inicializamos el juego.
     call game_init
+    
+    ; Saltar a la primera tarea: Idle
+    
+    jmp (20<<3):0 ; same pero GDT_TSS_IDLE
+
 
     ; Ciclar infinitamente (por si algo sale mal...)
     mov eax, 0xFFFF
