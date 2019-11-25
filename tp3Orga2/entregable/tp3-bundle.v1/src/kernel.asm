@@ -61,6 +61,8 @@ puntos_msg db 'Puntos:'
 puntos_len equ $ - puntos_msg
 pelotas_msg db 'Pelotas:'
 pelotas_len equ $ - pelotas_msg
+mensajes_msg db 'Mensajes:'
+mensajes_len equ $ - mensajes_msg
 
 ;;
 ;; Seccion de código.
@@ -183,18 +185,6 @@ start:
     push 79    ; cInit
     push 17    ; fInit
     call screen_drawBox ; screen_drawBox(17, 0, 7, 1, 0x32, 0xCC)
-
-    ; imprimo Puntos, Pelotas.
-    print_text_pm puntos_msg, puntos_len, 0xF0, 42, 2 ; puntero al mensaje (puntos_msg), longitud del mensaje (puntos_len), color (0xF0, es decir, C_BG_WHITE y C_FG_BLACK), fila y columna (0,0).
-    print_text_pm pelotas_msg, pelotas_len, 0xF0, 43, 2
-
-    print_text_pm puntos_msg, puntos_len, 0xF0, 42, 42 
-    print_text_pm pelotas_msg, pelotas_len, 0xF0, 43, 42
-
-    ; el resto deberia ser hecho/actualizado por alguna tarea.
-    ; de hecho, imprimir los puntos y las pelotas no es parte del ejercicio 1. Lo dejo porque despues va a servir como molde, pero va a volar
-
-    
 
     ; ---------------------------- Fin Clase 1 --------------------------------
 
@@ -326,7 +316,7 @@ selector: DW 0
 
 saltarATarea: ; [esp] = selectorDeSegmento
     push eax
-    xchg bx, bx
+    ;xchg bx, bx
     mov ax, word [esp]
     mov [selector], ax
     jmp far [offset] ; con esto saltamos a la entrada selectorDeSegmento de la GDT.

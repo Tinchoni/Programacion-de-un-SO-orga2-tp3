@@ -21,6 +21,8 @@ extern saltarDeHandlerATarea
 extern print_exception 
 extern dibujarPantalla
 extern atender_teclado
+extern dameCoordenadas
+extern write_message
 
 ;;
 ;; Definición de MACROS
@@ -135,13 +137,19 @@ _isr33:
 ;; Rutinas de atención de las SYSCALLS
 ;; -------------------------------------------------------------------------- ;;
 
+whereX: DD 0
+whereY: DD 0
+
 global _isr47
 _isr47:
+    pushad ; preservo estado del sistema
+
     cmp eax, 0x80000003
     je .setHandler
     jmp .sigo1
     .setHandler:
         call setHandler
+    jmp .popRegisters
     
     .sigo1:
     cmp eax, 0x80000001
@@ -149,22 +157,37 @@ _isr47:
     jmp .sigo2
     .talk:
         call talk
-    
+    jmp .popRegisters
+
     .sigo2:
     cmp eax, 0x80000002
     je .where
     jmp .sigo3
     .where:
         call where
+    jmp .popWhere
 
     .sigo3:
     cmp eax, 0x8000FFFF
     je .informAction
-    jmp .sigo4
+    jmp .popRegisters
     .informAction:
         call informAction
+    jmp .popRegisters
 
-    .sigo4:
+    .popRegisters:
+    popad ; recupero estado previo a la interrupcion
+    jmp .fin
+
+    .popWhere:
+    mov [whereX], ebx
+    mov [whereY], ecx
+    popad
+    mov ebx, [whereX]
+    mov ecx, [whereY]
+    jmp .fin
+
+    .fin:
     iret
 
 ;; Funciones Auxiliares
@@ -187,27 +210,24 @@ nextClock:
 
 ;debe preservar eax
 setHandler:
-    pushad
     push ebx
     call setHandlerValue
     add esp, 4
-    popad
     ret 
 
 talk: 
-    pushad
-    ;COMPLETAR
-    popad
+    push ebx
+    call write_message
+    add esp, 4
     ret
 
 where: 
-    pushad
-    ;COMPLETAR
-    popad
+    call dameCoordenadas
+    mov ebx, [eax + 0] ;coordPelota.x
+    mov ecx, [eax + 4] ;coordPelota.y
     ret
 
 informAction: 
-    pushad
     
     ;call a game.c
     push ebx
@@ -217,7 +237,6 @@ informAction:
     ;call a sched.c
     call saltarDeHandlerATarea
 
-    popad
     ret
 
 

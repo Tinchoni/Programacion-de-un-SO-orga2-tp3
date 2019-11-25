@@ -67,8 +67,7 @@ void next_quantum(){
 }
 
 void setHandlerValue(uint32_t punteritoAlCodigoDelHandler){
-	//como el quantum lo avanzamos justo al inicializar la tarea, 
-	//en esta instancia quantum - 1 sera el tipo de tarea que 
+	//en esta instancia quantum sera el slot de tarea que 
 	//se esta ejecutando en este momento
 	handlers_activos[quantum] = punteritoAlCodigoDelHandler;
 }

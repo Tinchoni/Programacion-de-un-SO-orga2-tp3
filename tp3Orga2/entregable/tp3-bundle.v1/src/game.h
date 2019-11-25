@@ -12,24 +12,12 @@
 #include "screen.h"
 #include "mmu.h"
 #include "sched.h"
+#include "gameStructs.h"
 
 typedef void (*f_handler_t)();
 
-typedef struct str_coordenadaPelota {
-    uint32_t  x;
-    uint32_t  y;
-    uint32_t  direccionX; //0 = izquierda, 1 = derecha.
-    uint32_t  direccionY; //0 = no invertido, 1 = invertido
-} coordenadaPelota;
-
-
-typedef enum e_action {
-    Up = 1,
-    Center = 2,
-    Down = 3,
-} e_action_t;
-
-
+coordenadaPelota* dameCoordenadas();
+void matarTarea(uint32_t murioDelLadoDerecho, uint32_t slot);
 void crearPelota(uint32_t esJugadorA, uint32_t tipoDePelota);
 void atender_teclado(uint8_t tecla_presionada);
 void moverJugador(uint32_t esJugadorA, e_action_t movimientoAEjecutar);

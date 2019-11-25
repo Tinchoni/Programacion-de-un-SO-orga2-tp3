@@ -9,7 +9,7 @@
 void handler(void);
 
 void task() {
-    char* message = "Tarea A1";
+    char* message = "Soy la tareita A1";
     syscall_talk(message);
     syscall_setHandler(handler);
 

@@ -16,46 +16,54 @@
 #define CODE_n 0x31 
 #define CODE_m 0x32 
 
-
-char* mensajesJugadorA[3];
-char* mensajesJugadorB[3];
-
-coordenadaPelota coordsPelotasPorSlot[6];
-uint32_t alturaJugadorA;
-uint32_t alturaJugadorB;
-
-e_action_t movimientosPendientesPorSlot[6];
-
 void game_init() {
 	alturaJugadorA = 20;
 	alturaJugadorB = 20;
+	for(int i = 0; i <= 5; i++){
+		movimientosPendientesPorSlot[i] = Center;
+	}
+	for(int i=0; i < 3; i++){
+		mensajesJugadorA[i][0] = '\0';
+		mensajesJugadorB[i][0] = '\0';
+	}
+
+	pelotasDisponiblesA = 15;
+	pelotasDisponiblesB = 15;
 	//crearPelota(1, 0);
 	//crearPelota(1, 0);
+}
+
+void iniciarTarea(uint32_t slotLibre, uint32_t tipoDePelota){
+	//pongo como viva la pelota
+	pelotas_vivas[slotLibre] = 1;
+
+	userLevelTasksCodeAndStacks[slotLibre] = mmu_initTaskDir(tipoDePelota);
+	//lleno la tss de la tarea
+	initUserTask(slotLibre, 0, 0);
 }
 
 void crearPelota(uint32_t esJugadorA, uint32_t tipoDePelota){
 	uint32_t slotLibre = dameSlotLibre(esJugadorA);
 	if(slotLibre < 6){
-		if( esJugadorA ){
+		if( esJugadorA && pelotasDisponiblesA > 0){
 			//la pelota es del jugador A
-			coordsPelotasPorSlot[slotLibre].x = 1; // arranca justo adelante del jugador
+			pelotasDisponiblesA--;
+			coordsPelotasPorSlot[slotLibre].x = 0; // arranca justo adelante del jugador
 			coordsPelotasPorSlot[slotLibre].y = alturaJugadorA; // arranca en el centro de la posicion del jugador
 			coordsPelotasPorSlot[slotLibre].direccionX = 1; // 1 = derecha
 			coordsPelotasPorSlot[slotLibre].direccionY = 0; // 0 = no invertida
-		} else {
+			
+			iniciarTarea(slotLibre, tipoDePelota);
+		} else if(!esJugadorA && pelotasDisponiblesB > 0) {
 			//pelota del jugador B
-			coordsPelotasPorSlot[slotLibre].x = 78; 
+			pelotasDisponiblesB--;
+			coordsPelotasPorSlot[slotLibre].x = 79; 
 			coordsPelotasPorSlot[slotLibre].y = alturaJugadorB;
 			coordsPelotasPorSlot[slotLibre].direccionX = 0; // 0 = izquierda
 			coordsPelotasPorSlot[slotLibre].direccionY = 0; // 0 = no invertida
+			
+			iniciarTarea(slotLibre, tipoDePelota);
 		}
-		//pongo como viva la pelota
-		print_dec(slotLibre, 1, 20,20,0xC);
-		pelotas_vivas[slotLibre] = 1;
-
-		userLevelTasksCodeAndStacks[slotLibre] = mmu_initTaskDir(tipoDePelota);
-		//lleno la tss de la tarea
-		initUserTask(slotLibre, 0, 0);
 	}
 }
 
@@ -75,6 +83,7 @@ e_action_t invertir(e_action_t accion, uint32_t invierte) {
 }
 
 void atender_teclado(uint8_t tecla_presionada){
+	//TODO: Que onda con el enunciado que nos dice "limitar una accion cada 30 ciclos"????
 	switch(tecla_presionada){
 		case CODE_w:
 			//mover hacia arriba jugador A
@@ -118,6 +127,24 @@ void atender_teclado(uint8_t tecla_presionada){
 			break;
 	}
 }
+void copiarString(uint32_t index, char* src, uint32_t esJugadorA){
+	// TODO: Los mensajes claramente andan mal. Creemos que se debe a 
+	// que la copia no es deep, es decir, 
+	// no estamos copiando realmente si no pasando punteritos de aca pa alla
+	int i;
+	for(i=0; i < 20 && src[i] != 0; i++){
+		if(esJugadorA){
+			mensajesJugadorA[index][i] = src[i];
+		} else {
+			mensajesJugadorB[index][i] = src[i];
+		}
+	}
+	if(esJugadorA){
+		mensajesJugadorA[index][i] = '\0';
+	} else {
+		mensajesJugadorB[index][i] = '\0';
+	}
+}
 
 void moverJugador(uint32_t esJugadorA, e_action_t movimientoAEjecutar){
 	uint32_t altura; 
@@ -136,24 +163,11 @@ void moverJugador(uint32_t esJugadorA, e_action_t movimientoAEjecutar){
 			altura++;
 		}
 	}
-	
-	if(esJugadorA){
-		//cambiar variables de altura
-		alturaJugadorA = altura;
-		//dibujar jugador
-		//limpiamos borde izquierdo
-		screen_drawBox(0, 0, 40, 1, 0x32, C_BG_GREEN + C_FG_GREEN);
 
-		//ahora dibujo al jugador A
-		screen_drawBox(alturaJugadorA - 3, 0, 7, 1, 0x32, 0xCC);
+	if(esJugadorA){
+		alturaJugadorA = altura;
 	} else {
 		alturaJugadorB = altura;
-		//dibujar jugador
-		//limpiamos borde derecho
-		screen_drawBox(0, 79, 40, 1, 0x32, C_BG_GREEN + C_FG_GREEN);
-
-		//ahora dibujo al jugador B
-		screen_drawBox(alturaJugadorB - 3, 79, 7, 1, 0x32, 0x99);
 	}
 }
 
@@ -178,7 +192,6 @@ coordenadaPelota moverEnVertical(coordenadaPelota coordActual, e_action_t movimi
 }
 
 uint32_t laAtaja(uint32_t alturaPelota, uint32_t alturaJugador){
-	//TODO: Mirar aca si el atajado anda mal
 	if(alturaJugador - 3 <= alturaPelota  && alturaPelota <= alturaJugador + 3){
 		return 1;
 	} else {
@@ -186,11 +199,19 @@ uint32_t laAtaja(uint32_t alturaPelota, uint32_t alturaJugador){
 	}
 }
 
-coordenadaPelota moverEnHorizontal(coordenadaPelota coordActual) {
+void matarTarea(uint32_t slot){
+	pelotas_vivas[slot] = 0;
+	handlers_activos[slot] = 0;
+	movimientosPendientesPorSlot[slot] = Center;
+}
+
+coordenadaPelota moverEnHorizontal(coordenadaPelota coordActual, uint32_t slot) {
 	if(coordActual.direccionX) {
 		//derecha
 		if(coordActual.x == 79){
-			//TODO: matar tarea y borrarla de la pantalla pq esta en la columna 79
+			//mato la tarea
+			matarTarea(slot);
+			puntajeA += 100;
 		} else if( coordActual.x == 78 && laAtaja(coordActual.y, alturaJugadorB) ){
 			coordActual.direccionX = !coordActual.direccionX;
 		} else {
@@ -199,7 +220,10 @@ coordenadaPelota moverEnHorizontal(coordenadaPelota coordActual) {
 	} else {
 		//izquierda
 		if(coordActual.x == 0){
-			//TODO: matar tarea y borrarla de la pantalla pq esta en la columna 0
+			//mato la tarea
+			matarTarea(slot);
+			puntajeB += 100;
+			
 		} else if( coordActual.x == 1 && laAtaja(coordActual.y, alturaJugadorA) ){
 			coordActual.direccionX = !coordActual.direccionX;
 		} else {
@@ -210,55 +234,111 @@ coordenadaPelota moverEnHorizontal(coordenadaPelota coordActual) {
 }
 
 void dibujarPantalla(){
-	//screen_drawBox(0, 1, 40, 78, 0x32, 0x88); // limpio el tablero (en particular, las pelotas)
+	//TODO: MODO DEBUG! (atender tecla Y, poner cartelito, cortar las tareas, reestablecer)
+
+	//TODO: Matar tareas cuando se tomaron mas de un ciclo de clock en el handler
+	//TODO: Matar tareas cuando tienen una excepcion fuera del modo debug (es llamar a matarTare(quantum))
+
+	// limpio el tablero (en particular, las pelotas)
+	screen_drawBox(0, 1, 40, 78, 0x32, 0x88); 
 	for(uint32_t i = 0; i <= 5; i++){
-		coordenadaPelota coordActual = coordsPelotasPorSlot[i];
-		e_action_t movimientoAEjecutar = invertir(movimientosPendientesPorSlot[i], coordActual.direccionY);
-
-
-		//aca calculamos como va a ser el movimiento en vertical en el siguiente tick del juego		
-		coordActual = moverEnVertical(coordActual, movimientoAEjecutar);
-		
-		// same para horizontal
-		coordActual = moverEnHorizontal(coordActual);
-
-		// aca dibujamos en pantalla ese resultado.
 		if(pelotas_vivas[i] != 0) {
+			coordenadaPelota coordActual = coordsPelotasPorSlot[i];
+			e_action_t movimientoAEjecutar = invertir(movimientosPendientesPorSlot[i], coordActual.direccionY);
+
+
+			//aca calculamos como va a ser el movimiento en vertical en el siguiente tick del juego		
+			coordActual = moverEnVertical(coordActual, movimientoAEjecutar);
+			
+			// same para horizontal
+			coordActual = moverEnHorizontal(coordActual, i);
+
+			coordsPelotasPorSlot[i] = coordActual;
 			uint8_t atributos;
 			if(0 <= i && i <= 2) {
 				atributos = C_BG_DARK_GREY + C_FG_LIGHT_RED; // la pelota era del jugador A. So, la pelota es del color de A
 			} else {
 				atributos = C_BG_DARK_GREY + C_FG_LIGHT_BLUE;
 			}
+			// aca dibujamos en pantalla ese resultado.
 			print("*", coordActual.x, coordActual.y, atributos);
 		}
 	}
 
+	// imprimo jugador A
+	// limpio borde izquierdo
+	screen_drawBox(0, 0, 40, 1, 0x32, C_BG_GREEN + C_FG_GREEN);
+
+	// ahora dibujo al jugador A
+	screen_drawBox(alturaJugadorA - 3, 0, 7, 1, 0x32, 0xCC);
+
+	// imprimo jugador B
+	// limpio borde derecho
+	screen_drawBox(0, 79, 40, 1, 0x32, C_BG_GREEN + C_FG_GREEN);
+
+	// ahora dibujo al jugador B
+	screen_drawBox(alturaJugadorB - 3, 79, 7, 1, 0x32, 0x99);
+	
+
+
+	//imprimo mensajes
+	screen_drawBox(45, 1, 4, 38, 0x32, 0xCC);
+	screen_drawBox(45, 41, 4, 38, 0x32, 0x99);
+	for(int i=0; i < 3; i++){
+		print(mensajesJugadorA[i], 4, (45 + i), 0xF0);
+		print(mensajesJugadorB[i], 44, (45 + i), 0xF0);
+	}
+
+	//imprimo "puntos"
+	print("Puntos:", 2, 42, 0xF0);
+	print_dec(puntajeA, 4, 10, 42, 0xF0);
+	print("Puntos:", 42, 42, 0xF0);
+	print_dec(puntajeB, 4, 50, 42, 0xF0);
+
+	//imprimo "pelotas"
+	print("Pelotas:", 2, 43, 0xF0);
+	print_dec(pelotasDisponiblesA, 2, 11, 43, 0xF0);
+	print("Pelotas:", 42, 43, 0xF0);
+	print_dec(pelotasDisponiblesB, 2, 51, 43, 0xF0);
+
+	//imprimo slots con pelotas activas (o no)
+	for(int i= 0; i < 3; i++){
+		//i esimo slot de pelotas de A
+		char* taVivo = pelotas_vivas[i] ? "O" : "X";
+		print(taVivo, 32 + 2*i, 42, 0xF0);
+
+		//i esimo slot de pelotas de B
+		taVivo = pelotas_vivas[i+3] ? "O" : "X";
+		print(taVivo, 72 + 2*i, 42, 0xF0);
+	}
+	
 }
 
 void actualizarMovimientoPendiente(e_action_t action){
 	movimientosPendientesPorSlot[quantum] = action;
 }
-
-void write_message(uint16_t player, char* message){
-	
-	//TODO: chequear que message.length <= 20. (wont fix)
-
-	// player 0 = A
-	// player 1 = B
-	if(player == 0){
-		// "push" --> mensajesJugadorA.push(message);
-		mensajesJugadorA[2] = mensajesJugadorA[1];
-		mensajesJugadorA[1] = mensajesJugadorA[0];
-		mensajesJugadorA[0] = message;
+coordenadaPelota* dameCoordenadas(){
+	//aca quantum = slot.
+	return &(coordsPelotasPorSlot[quantum]);
+}
+void write_message(char* message){
+	uint32_t esJugadorA = 0;
+	if(quantum < 3){	
+		esJugadorA = 1;
 	} else {
-		mensajesJugadorB[2] = mensajesJugadorB[1];
-		mensajesJugadorB[1] = mensajesJugadorB[0];
-		mensajesJugadorB[0] = message;
+		esJugadorA = 0;
+	}
+
+
+	if(esJugadorA){
+		// "push" --> mensajesJugadorA.push(message);
+		copiarString(2, mensajesJugadorA[1],1);
+		copiarString(1, mensajesJugadorA[0],1);
+		copiarString(0, message,1);
+		
+	} else {
+		copiarString(2, mensajesJugadorB[1],0);
+		copiarString(1, mensajesJugadorB[0],0);
+		copiarString(0, message,0);
 	}
 }
-
-coordenadaPelota where_is(uint32_t type){
-	return coordsPelotasPorSlot[type];
-} 
-

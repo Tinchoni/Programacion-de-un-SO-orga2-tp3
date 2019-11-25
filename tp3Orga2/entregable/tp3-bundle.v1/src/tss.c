@@ -7,8 +7,6 @@
 
 #include "tss.h"
 
-//SI LLEGA A MORIR TODO, COMPLETAR SS FS  Y EBP!!
-
 
 #define tasksAndHandlers_ptl 0
 #define tasksAndHandlers_unused0 0
