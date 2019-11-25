@@ -210,7 +210,9 @@ informAction:
     pushad
     
     ;call a game.c
+    push ebx
     call actualizarMovimientoPendiente
+    add esp, 4
 
     ;call a sched.c
     call saltarDeHandlerATarea

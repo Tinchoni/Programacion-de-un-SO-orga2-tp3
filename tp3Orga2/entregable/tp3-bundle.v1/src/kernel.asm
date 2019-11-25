@@ -321,10 +321,18 @@ start:
 
 ;; funcion auxiliar
 
+offset: DD 0
+selector: DW 0 
+
 saltarATarea: ; [esp] = selectorDeSegmento
-    jmp far [esp] ; con esto saltamos a la entrada selectorDeSegmento de la GDT.
+    push eax
+    xchg bx, bx
+    mov ax, word [esp]
+    mov [selector], ax
+    jmp far [offset] ; con esto saltamos a la entrada selectorDeSegmento de la GDT.
     ;este ret se ejecuta cuando VUELVA a la tarea. es LO PRIMERO 
     ; que ejecuta al retomar cada tarea (exceptuando la primera vez).
+    pop eax
     ret 
 
 

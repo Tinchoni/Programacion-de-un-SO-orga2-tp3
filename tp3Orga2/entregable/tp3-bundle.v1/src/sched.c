@@ -11,11 +11,53 @@ extern void saltarATarea(int16_t selectorDeSegmento);
 
 
 int16_t GDTHandlerEntryBySlot(uint32_t slot){
-	return GDT_TSS_HANDLER_A1 + slot;
+	int16_t res;
+	switch(slot){
+		case 0:
+			res = GDT_TSS_HANDLER_A1;
+			break;
+		case 1:
+			res = GDT_TSS_HANDLER_A2;
+			break;
+		case 2:
+			res = GDT_TSS_HANDLER_A3;
+			break;
+		case 3:
+			res = GDT_TSS_HANDLER_B1;
+			break;
+		case 4:
+			res = GDT_TSS_HANDLER_B2;
+			break;
+		case 5:
+			res = GDT_TSS_HANDLER_B3;
+			break;
+	}
+	return res;
 }
 
 int16_t GDTEntryBySlot(uint32_t slot){
-	return GDT_TSS_A1 + slot;
+	int16_t res;
+	switch(slot){
+		case 0:
+			res = GDT_TSS_A1;
+			break;
+		case 1:
+			res = GDT_TSS_A2;
+			break;
+		case 2:
+			res = GDT_TSS_A3;
+			break;
+		case 3:
+			res = GDT_TSS_B1;
+			break;
+		case 4:
+			res = GDT_TSS_B2;
+			break;
+		case 5:
+			res = GDT_TSS_B3;
+			break;
+	}
+	return res;
 }
 
 void next_quantum(){
