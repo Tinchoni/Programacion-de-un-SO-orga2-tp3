@@ -17,7 +17,7 @@
 typedef void (*f_handler_t)();
 
 coordenadaPelota* dameCoordenadas();
-void matarTarea(uint32_t murioDelLadoDerecho, uint32_t slot);
+void matarTarea(uint32_t slot);
 void crearPelota(uint32_t esJugadorA, uint32_t tipoDePelota);
 void atender_teclado(uint8_t tecla_presionada);
 void moverJugador(uint32_t esJugadorA, e_action_t movimientoAEjecutar);
