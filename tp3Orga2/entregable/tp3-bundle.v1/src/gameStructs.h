@@ -15,6 +15,7 @@ int32_t quantum;
 // handlers_activos[4]: Handler de la pelota del Jugador B Slot 2
 // handlers_activos[5]: Handler de la pelota del Jugador B Slot 3
 uint32_t handlers_activos[6];
+uint32_t ejecutando_handler[6];
 
 // pelotas_vivas[i] == 1 ===> La pelota-i esta viva.
 // pelotas_vivas[0]: pelota del Jugador A Slot 1
@@ -39,8 +40,8 @@ typedef enum e_action {
     Down = 3,
 } e_action_t;
 
-char* mensajesJugadorA[3];
-char* mensajesJugadorB[3];
+char mensajesJugadorA[3][20];
+char mensajesJugadorB[3][20];
 
 coordenadaPelota coordsPelotasPorSlot[6];
 uint32_t alturaJugadorA;
@@ -57,6 +58,7 @@ uint32_t pelotasDisponiblesB;
 uint32_t puntajeA;
 uint32_t puntajeB;
 
+uint32_t modoDebug;
 
 
 #endif  /* !__GAME_STRUCTS_H__ */

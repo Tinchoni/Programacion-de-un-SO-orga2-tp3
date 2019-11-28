@@ -15,6 +15,7 @@
 #define CODE_b 0x30 
 #define CODE_n 0x31 
 #define CODE_m 0x32 
+#define CODE_y 0x15
 
 void game_init() {
 	alturaJugadorA = 20;
@@ -29,6 +30,7 @@ void game_init() {
 
 	pelotasDisponiblesA = 15;
 	pelotasDisponiblesB = 15;
+	modoDebug = 0;
 	//crearPelota(1, 0);
 	//crearPelota(1, 0);
 }
@@ -125,8 +127,15 @@ void atender_teclado(uint8_t tecla_presionada){
 			//nueva pelota tipo 3 jugador B
 			crearPelota(0, 5);
 			break;
+		case CODE_y:
+			alternarModoDebug();
+			break; 
 	}
 }
+void alternarModoDebug() {
+	modoDebug = !modoDebug;
+}
+
 void copiarString(uint32_t index, char* src, uint32_t esJugadorA){
 	// TODO: Los mensajes claramente andan mal. Creemos que se debe a 
 	// que la copia no es deep, es decir, 
@@ -196,6 +205,13 @@ uint32_t laAtaja(uint32_t alturaPelota, uint32_t alturaJugador){
 		return 1;
 	} else {
 		return 0;
+	}
+}
+
+void manejar_excepcion(uint8_t codigoDeError){
+	print_exception(codigoDeError);
+	if(quantum < 6){
+		//significa que 
 	}
 }
 
@@ -332,7 +348,7 @@ void write_message(char* message){
 
 	if(esJugadorA){
 		// "push" --> mensajesJugadorA.push(message);
-		copiarString(2, mensajesJugadorA[1],1);
+		copiarString(2, mensajesJugadorA[1],1); // mensajesJugadorA[2] = deepCopy(mensajesJugadorA[1])
 		copiarString(1, mensajesJugadorA[0],1);
 		copiarString(0, message,1);
 		

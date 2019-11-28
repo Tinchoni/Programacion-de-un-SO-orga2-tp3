@@ -73,6 +73,7 @@ void setHandlerValue(uint32_t punteritoAlCodigoDelHandler){
 }
 
 void saltarDeHandlerATarea(){
+	ejecutando_handler[quantum] = 0;
 	// quantum == tipo de tarea ejecutandose actualmente.
 	saltarATarea(GDTEntryBySlot(quantum) << 3);
 }
@@ -110,6 +111,7 @@ void sched_init() {
 		handlers_activos[i] = 0;
 		// todas las pelotas empiezan muertas.
 		pelotas_vivas[i] = 0;
+		ejecutando_handler[i] = 0;
 	}
 }
 
@@ -117,12 +119,20 @@ void sched_init() {
 
 int16_t sched_nextTask() {
 	int16_t response = 0;
+
+	if(ejecutando_handler[quantum] == 1){
+		//esto significa que el handler nunca paso a la tarea, es decir,que se tomo mas de un clock en hacer informAction
+		//en este caso debo matar a la tarea.
+		matarTarea(quantum);
+	}
+
 	next_quantum();
 	if(quantum < 6){
 		//estoy swappeando entre manejo de pelotas.
 		//quantum == slot de pelota que estoy procesando
 		if(handlers_activos[quantum] != 0){
 			//reinicio el handler
+			ejecutando_handler[quantum] = 1;
 			initUserTask(quantum, 1, handlers_activos[quantum]);
 			response = GDTHandlerEntryBySlot(quantum) << 3;
 		} else if(pelotas_vivas[quantum] != 0) {

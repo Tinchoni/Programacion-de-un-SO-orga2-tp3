@@ -18,7 +18,7 @@ extern sched_nextTask
 extern setHandlerValue
 extern actualizarMovimientoPendiente
 extern saltarDeHandlerATarea
-extern print_exception 
+extern manejar_excepcion 
 extern dibujarPantalla
 extern atender_teclado
 extern dameCoordenadas
@@ -36,7 +36,7 @@ _isr%1:
     ;xchg bx, bx
     mov eax, %1
     push eax
-    call print_exception
+    call manejar_excepcion
     add esp, 4
     jmp $
 
