@@ -15,6 +15,7 @@
 #include "stdint.h"
 #include "colors.h"
 #include "defines.h"
+#include "gameStructs.h"
 
 /* Estructura de para acceder a memoria de video */
 typedef struct ca_s {
@@ -22,7 +23,7 @@ typedef struct ca_s {
     uint8_t a;
 } ca;
 
-void print_exception(uint8_t ex_number);
+void get_exception(uint8_t ex_number);
 
 void print(const char* text, uint32_t x, uint32_t y, uint8_t attr);
 void print_dec(uint32_t numero, uint32_t size, uint32_t x, uint32_t y, uint8_t attr);

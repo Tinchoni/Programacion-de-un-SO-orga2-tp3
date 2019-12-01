@@ -13,7 +13,19 @@ void task() {
     syscall_talk(message);
     syscall_setHandler(handler);
 
-    while(1) { __asm __volatile("mov $1, %%eax":::"eax"); }
+    int i = 0;
+    while(1) { 
+        __asm __volatile("mov $1, %%eax":::"eax");
+        
+        if(i == 500002){
+            int x = i - i;
+            char* a = (char*) x;
+            a[0] = 'a';
+        }
+
+
+        i++;
+    }
 }
 
 void handler() {

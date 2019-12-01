@@ -9,6 +9,7 @@
 
 #include "stdint.h"
 #include "defines.h"
+#include "i386.h"
 #include "screen.h"
 #include "mmu.h"
 #include "sched.h"
@@ -22,7 +23,7 @@ void crearPelota(uint32_t esJugadorA, uint32_t tipoDePelota);
 void atender_teclado(uint8_t tecla_presionada);
 void moverJugador(uint32_t esJugadorA, e_action_t movimientoAEjecutar);
 void game_init();
-void alternarModoDebug();
+void atenderY();
 void manejar_excepcion(uint8_t codigoDeError);
 
 #endif  /* !__GAME_H__ */

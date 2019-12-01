@@ -120,27 +120,28 @@ void sched_init() {
 int16_t sched_nextTask() {
 	int16_t response = 0;
 
-	if(ejecutando_handler[quantum] == 1){
-		//esto significa que el handler nunca paso a la tarea, es decir,que se tomo mas de un clock en hacer informAction
-		//en este caso debo matar a la tarea.
-		matarTarea(quantum);
-	}
-
 	next_quantum();
 	if(quantum < 6){
+
+		if(ejecutando_handler[quantum] == 1){
+			//esto significa que el handler nunca paso a la tarea, es decir,que se tomo mas de un clock en hacer informAction
+			//en este caso debo matar a la tarea.
+			matarTarea(quantum);
+		}
+
 		//estoy swappeando entre manejo de pelotas.
 		//quantum == slot de pelota que estoy procesando
-		if(handlers_activos[quantum] != 0){
+		if(handlers_activos[quantum] != 0 && !enPausa){
 			//reinicio el handler
 			ejecutando_handler[quantum] = 1;
 			initUserTask(quantum, 1, handlers_activos[quantum]);
 			response = GDTHandlerEntryBySlot(quantum) << 3;
-		} else if(pelotas_vivas[quantum] != 0) {
+		} else if(pelotas_vivas[quantum] != 0 && !enPausa) {
 			//hay una tarea viva que no tiene handler pero si esta viva
 			//asi que le toca ejecutar a ella
 			response = (GDTEntryBySlot(quantum) << 3);
 		} else {
-			//no hay handler ni tampoco tarea viva, con lo cual
+			//Esta en pausa o no hay handler ni tampoco tarea viva, con lo cual
 			//salto a la tarea idle
 			response = GDT_TSS_IDLE << 3;
 		}

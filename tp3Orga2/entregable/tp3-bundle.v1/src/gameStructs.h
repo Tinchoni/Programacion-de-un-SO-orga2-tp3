@@ -59,6 +59,7 @@ uint32_t puntajeA;
 uint32_t puntajeB;
 
 uint32_t modoDebug;
-
+uint32_t enPausa;
+char exception_msg [40];
 
 #endif  /* !__GAME_STRUCTS_H__ */

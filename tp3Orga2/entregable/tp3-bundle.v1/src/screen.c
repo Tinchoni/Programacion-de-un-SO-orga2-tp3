@@ -32,7 +32,7 @@ void print_number (uint8_t code){ // la funcion utilizada para imprimir por pant
     print_dec(number, 1, 79, 0, ((0x0 << 4) | 0x7) );
 }
 
-void print_exception(uint8_t ex_number){
+void get_exception(uint8_t ex_number){
     char* excepciones_msgs[34];
     excepciones_msgs[0]= "Divide-by-zero Error";
     excepciones_msgs[1]= "Debug";
@@ -66,8 +66,11 @@ void print_exception(uint8_t ex_number){
     excepciones_msgs[29]= "Reserved, puto";
     excepciones_msgs[30]= "Security Exception";
     excepciones_msgs[31]= "Reserved, tipeas vos?";
-    
-    print(excepciones_msgs[ex_number], 10, 10, ((0x0 << 4) | 0x7) );
+    int i;
+    for(i = 0; excepciones_msgs[ex_number][i] != 0; i++){
+        exception_msg[i] = excepciones_msgs[ex_number][i];
+    }
+    exception_msg[i] = 0;
 }
 
 void print_dec(uint32_t numero, uint32_t size, uint32_t x, uint32_t y, uint8_t attr) {

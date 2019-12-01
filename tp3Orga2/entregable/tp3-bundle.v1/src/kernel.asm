@@ -316,12 +316,19 @@ selector: DW 0
 
 saltarATarea: ; [esp] = selectorDeSegmento
     push eax
+    push ecx
+    mov eax, [esp+12]
     ;xchg bx, bx
-    mov ax, word [esp]
+    
+    str cx
+    cmp cx, ax
+    je .fin
     mov [selector], ax
     jmp far [offset] ; con esto saltamos a la entrada selectorDeSegmento de la GDT.
     ;este ret se ejecuta cuando VUELVA a la tarea. es LO PRIMERO 
     ; que ejecuta al retomar cada tarea (exceptuando la primera vez).
+    .fin:
+    pop ecx
     pop eax
     ret 
 

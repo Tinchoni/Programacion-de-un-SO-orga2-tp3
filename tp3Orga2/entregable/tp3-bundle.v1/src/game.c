@@ -17,6 +17,8 @@
 #define CODE_m 0x32 
 #define CODE_y 0x15
 
+extern void saltarATarea(int16_t selectorDeSegmento);
+
 void game_init() {
 	alturaJugadorA = 20;
 	alturaJugadorB = 20;
@@ -31,6 +33,7 @@ void game_init() {
 	pelotasDisponiblesA = 15;
 	pelotasDisponiblesB = 15;
 	modoDebug = 0;
+	enPausa = 0;
 	//crearPelota(1, 0);
 	//crearPelota(1, 0);
 }
@@ -38,7 +41,6 @@ void game_init() {
 void iniciarTarea(uint32_t slotLibre, uint32_t tipoDePelota){
 	//pongo como viva la pelota
 	pelotas_vivas[slotLibre] = 1;
-
 	userLevelTasksCodeAndStacks[slotLibre] = mmu_initTaskDir(tipoDePelota);
 	//lleno la tss de la tarea
 	initUserTask(slotLibre, 0, 0);
@@ -128,12 +130,18 @@ void atender_teclado(uint8_t tecla_presionada){
 			crearPelota(0, 5);
 			break;
 		case CODE_y:
-			alternarModoDebug();
+			atenderY();
 			break; 
 	}
 }
-void alternarModoDebug() {
-	modoDebug = !modoDebug;
+
+void atenderY() {
+	if(enPausa){
+		enPausa = 0;
+		quantum = 0;
+	} else {
+		modoDebug = !modoDebug;
+	}
 }
 
 void copiarString(uint32_t index, char* src, uint32_t esJugadorA){
@@ -209,15 +217,133 @@ uint32_t laAtaja(uint32_t alturaPelota, uint32_t alturaJugador){
 }
 
 void manejar_excepcion(uint8_t codigoDeError){
-	print_exception(codigoDeError);
+	//print_exception(codigoDeError);
 	if(quantum < 6){
-		//significa que 
+		//significa que la exepcion sucedio dentro de una tarea.
+		//en este caso deberia matarla.
+		//ahora, si estoy en modoDebug. Deberia printear los valores de esa tarea en pantalla
+		
+		if(modoDebug){
+			get_exception(codigoDeError);
+			enPausa = 1;
+			//limpio tablero
+			screen_drawBox(0, 1, 40, 78, 0x32, 0x88); 
+			//dibujo una caja loca
+			screen_drawBox(1, 19, 38, 40, 0x32, 0x00); // ancho 19-59. Alto 1-39 
+			char* string_task;
+			switch(quantum){
+				case 0:
+					string_task = "la pelota 1 del Jugador A";
+					break;
+				case 1:
+					string_task = "la pelota 2 del Jugador A";
+					break;
+				case 2:
+					string_task = "la pelota 3 del Jugador A";
+					break;
+				case 3:
+					string_task = "la pelota 1 del Jugador B";
+					break;
+				case 4:
+					string_task = "la pelota 2 del Jugador B";
+					break;
+				case 5:
+					string_task = "la pelota 3 del Jugador B";
+					break;
+			}
+			int base = 20;
+			print("ERROR ", base, 2, 0x0F);
+			print(exception_msg, base + 6,2,0x0F);
+
+			int altura = 4;
+			int ancho = base;
+			print("En ", ancho , altura, 0x0F);
+			print(string_task, ancho + 3, altura, 0x0F);
+
+			int columnaIzquierda = 20;
+			int columnaDerecha = 40;
+			int alturaBase = 7;
+
+			//columna izquierda
+
+			print("eax: ", columnaIzquierda ,alturaBase, 0x0F);
+			print_hex(reax(), 8, columnaIzquierda + 5, alturaBase, 0x0F);
+
+			print("ebx: ", columnaIzquierda ,alturaBase + 2, 0x0F);
+			print_hex(rebx(), 8, columnaIzquierda + 5, alturaBase + 2, 0x0F);
+
+			print("ecx: ", columnaIzquierda ,alturaBase + 4, 0x0F);
+			print_hex(recx(), 8, columnaIzquierda + 5, alturaBase + 4, 0x0F);
+
+			print("edx: ", columnaIzquierda ,alturaBase + 6, 0x0F);
+			print_hex(redx(), 8, columnaIzquierda + 5, alturaBase + 6, 0x0F);
+
+			print("esi: ", columnaIzquierda ,alturaBase + 8, 0x0F);
+			print_hex(resi(), 8, columnaIzquierda + 5, alturaBase + 8, 0x0F);
+
+			print("edi: ", columnaIzquierda ,alturaBase + 10, 0x0F);
+			print_hex(redi(), 8, columnaIzquierda + 5, alturaBase + 10, 0x0F);
+
+			print("ebp: ", columnaIzquierda ,alturaBase + 12, 0x0F);
+			print_hex(rebp(), 8, columnaIzquierda + 5, alturaBase + 12, 0x0F);
+
+			print("esp: ", columnaIzquierda ,alturaBase + 14, 0x0F);
+			print_hex(resp(), 8, columnaIzquierda + 5, alturaBase + 14, 0x0F);
+
+			print("eip: ", columnaIzquierda ,alturaBase + 16, 0x0F);
+			print_hex(0, 8, columnaIzquierda + 5, alturaBase + 16, 0x0F);
+
+			print("ecx: ", columnaIzquierda ,alturaBase + 18, 0x0F);
+			print_hex(1, 8, columnaIzquierda + 5, alturaBase + 18, 0x0F);
+
+			print("cs : ", columnaIzquierda ,alturaBase + 20, 0x0F);
+			print_hex(rcs(), 4, columnaIzquierda + 5, alturaBase + 20, 0x0F );
+
+			print("ds : ", columnaIzquierda, alturaBase + 22, 0x0F);
+			print_hex(rds(), 4, columnaIzquierda + 5, alturaBase + 22, 0x0F );
+
+			print("ds : ", columnaIzquierda, alturaBase + 24, 0x0F);
+			print_hex(rds(), 4, columnaIzquierda + 5, alturaBase + 24, 0x0F );
+
+			print("es : ", columnaIzquierda, alturaBase + 26, 0x0F);
+			print_hex(res(), 4, columnaIzquierda + 5, alturaBase + 26, 0x0F );
+
+			print("fs : ", columnaIzquierda, alturaBase + 28, 0x0F);
+			print_hex(rfs(), 4, columnaIzquierda + 5, alturaBase + 28, 0x0F );
+
+			print("gs : ", columnaIzquierda, alturaBase + 30, 0x0F);
+			print_hex(rgs(), 4, columnaIzquierda + 5, alturaBase + 30, 0x0F );
+
+
+			//columna derecha
+			print("ss : ", columnaDerecha, alturaBase, 0x0F);
+			print_hex(rss(), 4, columnaDerecha + 5, alturaBase, 0x0F );
+			
+			print("cr0: ", columnaDerecha, alturaBase + 2, 0x0F);
+			print_hex(rcr0(), 8, columnaDerecha + 5, alturaBase + 2, 0x0F );
+			
+			//TODO: cant get CR1 no tengo idea de por que.
+			// print("cr1: ", columnaDerecha, alturaBase + 4, 0x0F);
+			// print_hex(rcr1(), 8, columnaDerecha + 5, alturaBase + 4, 0x0F );
+			
+			print("cr2: ", columnaDerecha, alturaBase + 6, 0x0F);
+			print_hex(rcr2(), 8, columnaDerecha + 5, alturaBase + 6, 0x0F );
+			
+			print("cr3: ", columnaDerecha, alturaBase + 8, 0x0F);
+			print_hex(rcr3(), 8, columnaDerecha + 5, alturaBase + 8, 0x0F );
+			
+			print("cr4: ", columnaDerecha, alturaBase + 10, 0x0F);
+			print_hex(rcr4(), 8, columnaDerecha + 5, alturaBase + 10, 0x0F );
+		}
+		matarTarea(quantum);
+		saltarATarea(GDT_TSS_IDLE << 3);
 	}
 }
 
 void matarTarea(uint32_t slot){
 	pelotas_vivas[slot] = 0;
 	handlers_activos[slot] = 0;
+	ejecutando_handler[slot] = 0;
 	movimientosPendientesPorSlot[slot] = Center;
 }
 
@@ -254,80 +380,88 @@ void dibujarPantalla(){
 
 	//TODO: Matar tareas cuando se tomaron mas de un ciclo de clock en el handler
 	//TODO: Matar tareas cuando tienen una excepcion fuera del modo debug (es llamar a matarTare(quantum))
+	if(!enPausa){
 
-	// limpio el tablero (en particular, las pelotas)
-	screen_drawBox(0, 1, 40, 78, 0x32, 0x88); 
-	for(uint32_t i = 0; i <= 5; i++){
-		if(pelotas_vivas[i] != 0) {
-			coordenadaPelota coordActual = coordsPelotasPorSlot[i];
-			e_action_t movimientoAEjecutar = invertir(movimientosPendientesPorSlot[i], coordActual.direccionY);
+		// limpio el tablero (en particular, las pelotas)
+		screen_drawBox(0, 1, 40, 78, 0x32, 0x88); 
+		for(uint32_t i = 0; i <= 5; i++){
+			if(pelotas_vivas[i] != 0) {
+				coordenadaPelota coordActual = coordsPelotasPorSlot[i];
+				e_action_t movimientoAEjecutar = invertir(movimientosPendientesPorSlot[i], coordActual.direccionY);
 
 
-			//aca calculamos como va a ser el movimiento en vertical en el siguiente tick del juego		
-			coordActual = moverEnVertical(coordActual, movimientoAEjecutar);
-			
-			// same para horizontal
-			coordActual = moverEnHorizontal(coordActual, i);
+				//aca calculamos como va a ser el movimiento en vertical en el siguiente tick del juego		
+				coordActual = moverEnVertical(coordActual, movimientoAEjecutar);
+				
+				// same para horizontal
+				coordActual = moverEnHorizontal(coordActual, i);
 
-			coordsPelotasPorSlot[i] = coordActual;
-			uint8_t atributos;
-			if(0 <= i && i <= 2) {
-				atributos = C_BG_DARK_GREY + C_FG_LIGHT_RED; // la pelota era del jugador A. So, la pelota es del color de A
-			} else {
-				atributos = C_BG_DARK_GREY + C_FG_LIGHT_BLUE;
+				coordsPelotasPorSlot[i] = coordActual;
+				uint8_t atributos;
+				if(0 <= i && i <= 2) {
+					atributos = C_BG_DARK_GREY + C_FG_LIGHT_RED; // la pelota era del jugador A. So, la pelota es del color de A
+				} else {
+					atributos = C_BG_DARK_GREY + C_FG_LIGHT_BLUE;
+				}
+				// aca dibujamos en pantalla ese resultado.
+				print("*", coordActual.x, coordActual.y, atributos);
 			}
-			// aca dibujamos en pantalla ese resultado.
-			print("*", coordActual.x, coordActual.y, atributos);
+		}
+
+		// imprimo jugador A
+		// limpio borde izquierdo
+		screen_drawBox(0, 0, 40, 1, 0x32, C_BG_GREEN + C_FG_GREEN);
+
+		// ahora dibujo al jugador A
+		screen_drawBox(alturaJugadorA - 3, 0, 7, 1, 0x32, 0xCC);
+
+		// imprimo jugador B
+		// limpio borde derecho
+		screen_drawBox(0, 79, 40, 1, 0x32, C_BG_GREEN + C_FG_GREEN);
+
+		// ahora dibujo al jugador B
+		screen_drawBox(alturaJugadorB - 3, 79, 7, 1, 0x32, 0x99);
+		
+
+
+		//imprimo mensajes
+		screen_drawBox(45, 1, 4, 38, 0x32, 0xCC);
+		screen_drawBox(45, 41, 4, 38, 0x32, 0x99);
+		for(int i=0; i < 3; i++){
+			print(mensajesJugadorA[i], 4, (45 + i), 0xF0);
+			print(mensajesJugadorB[i], 44, (45 + i), 0xF0);
+		}
+
+		//imprimo "puntos"
+		print("Puntos:", 2, 42, 0xF0);
+		print_dec(puntajeA, 4, 10, 42, 0xF0);
+		print("Puntos:", 42, 42, 0xF0);
+		print_dec(puntajeB, 4, 50, 42, 0xF0);
+
+		//imprimo "pelotas"
+		print("Pelotas:", 2, 43, 0xF0);
+		print_dec(pelotasDisponiblesA, 2, 11, 43, 0xF0);
+		print("Pelotas:", 42, 43, 0xF0);
+		print_dec(pelotasDisponiblesB, 2, 51, 43, 0xF0);
+
+		//imprimo slots con pelotas activas (o no)
+		for(int i= 0; i < 3; i++){
+			//i esimo slot de pelotas de A
+			char* taVivo = pelotas_vivas[i] ? "O" : "X";
+			print(taVivo, 32 + 2*i, 42, 0xF0);
+
+			//i esimo slot de pelotas de B
+			taVivo = pelotas_vivas[i+3] ? "O" : "X";
+			print(taVivo, 72 + 2*i, 42, 0xF0);
+		}
+
+		// imprimo Cartelito de "Modo debug"
+		if(modoDebug){
+			print("Modo debug", 0, 49, 0x0F);
+		} else {
+			print("Modo debug", 0, 49, (C_FG_BLACK + C_BG_BLACK));
 		}
 	}
-
-	// imprimo jugador A
-	// limpio borde izquierdo
-	screen_drawBox(0, 0, 40, 1, 0x32, C_BG_GREEN + C_FG_GREEN);
-
-	// ahora dibujo al jugador A
-	screen_drawBox(alturaJugadorA - 3, 0, 7, 1, 0x32, 0xCC);
-
-	// imprimo jugador B
-	// limpio borde derecho
-	screen_drawBox(0, 79, 40, 1, 0x32, C_BG_GREEN + C_FG_GREEN);
-
-	// ahora dibujo al jugador B
-	screen_drawBox(alturaJugadorB - 3, 79, 7, 1, 0x32, 0x99);
-	
-
-
-	//imprimo mensajes
-	screen_drawBox(45, 1, 4, 38, 0x32, 0xCC);
-	screen_drawBox(45, 41, 4, 38, 0x32, 0x99);
-	for(int i=0; i < 3; i++){
-		print(mensajesJugadorA[i], 4, (45 + i), 0xF0);
-		print(mensajesJugadorB[i], 44, (45 + i), 0xF0);
-	}
-
-	//imprimo "puntos"
-	print("Puntos:", 2, 42, 0xF0);
-	print_dec(puntajeA, 4, 10, 42, 0xF0);
-	print("Puntos:", 42, 42, 0xF0);
-	print_dec(puntajeB, 4, 50, 42, 0xF0);
-
-	//imprimo "pelotas"
-	print("Pelotas:", 2, 43, 0xF0);
-	print_dec(pelotasDisponiblesA, 2, 11, 43, 0xF0);
-	print("Pelotas:", 42, 43, 0xF0);
-	print_dec(pelotasDisponiblesB, 2, 51, 43, 0xF0);
-
-	//imprimo slots con pelotas activas (o no)
-	for(int i= 0; i < 3; i++){
-		//i esimo slot de pelotas de A
-		char* taVivo = pelotas_vivas[i] ? "O" : "X";
-		print(taVivo, 32 + 2*i, 42, 0xF0);
-
-		//i esimo slot de pelotas de B
-		taVivo = pelotas_vivas[i+3] ? "O" : "X";
-		print(taVivo, 72 + 2*i, 42, 0xF0);
-	}
-	
 }
 
 void actualizarMovimientoPendiente(e_action_t action){
