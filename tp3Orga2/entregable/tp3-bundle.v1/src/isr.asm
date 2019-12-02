@@ -33,11 +33,128 @@ extern write_message
 global _isr%1
 
 _isr%1:
-    ;xchg bx, bx
+    xchg bx, bx
+
+    ;uint32_t ebp,
+    push ebp
+
+    ; aux ------------------------------ ebp = old esp
+    lea ebp, [esp + 4]
+
+    ;uint32_t eax
+    push eax
+
+    ;uint32_t eip,
+    mov eax, [ebp + 4]
+    push eax
+
+    ;uint32_t cs,
+    mov eax, [ebp + 8]
+    push eax
+
+    ;uint32_t eflags,
+    mov eax, [ebp + 12]
+    push eax
+
+    ;uint32_t ss,
+    mov eax, [ebp + 20]
+    push eax
+
+    ;uint32_t esp,
+    mov eax, [ebp + 16]
+    push eax
+
+    xchg bx, bx
+
+    ;uint32_t cr4,
+    mov eax, cr4
+    push eax
+
+    ;uint32_t cr3,
+    mov eax, cr3
+    push eax
+
+    ;uint32_t cr2,
+    mov eax, cr2
+    push eax
+
+    ;uint32_t cr0,
+    mov eax, cr0
+    push eax
+
+    ;uint32_t gs,
+    mov eax, gs
+    push eax
+
+    ;uint32_t fs,
+    mov eax, fs
+    push eax
+
+    ;uint32_t es,
+    mov eax, es
+    push eax
+
+    ;uint32_t ds,
+    mov eax, ds
+    push eax
+
+    ;uint32_t edi,
+    mov eax, edi
+    push eax
+
+    ;uint32_t esi,
+    mov eax, esi
+    push eax
+
+    ;uint32_t edx,
+    mov eax, edx
+    push eax
+
+    ;uint32_t ecx,
+    mov eax, ecx
+    push eax
+
+    ;uint32_t ebx,
+    mov eax, ebx
+    push eax
+
+    ;uint32_t stack0,
+    ; eax = esp
+    mov eax, [ebp + 16]
+    ; eax = stack0
+    mov eax, [eax]
+    push eax
+
+    ;uint32_t stack1,
+    ; eax = esp
+    mov eax, [ebp + 16]
+    ; eax = stack1
+    mov eax, [eax + 4]
+    push eax
+
+    ;uint32_t stack2,
+    ; eax = esp
+    mov eax, [ebp + 16]
+    ; eax = stack2
+    mov eax, [eax + 8]
+    push eax
+
+    ;uint32_t stack3,
+    ; eax = esp
+    mov eax, [ebp + 16]
+    ; eax = stack3
+    mov eax, [eax + 12]
+    push eax
+
+    
+    ;uint32_t codigoDeError
     mov eax, %1
     push eax
+
     call manejar_excepcion
-    add esp, 4
+
+
+    add esp, 21*4
     jmp $
 
 %endmacro

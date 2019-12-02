@@ -216,7 +216,31 @@ uint32_t laAtaja(uint32_t alturaPelota, uint32_t alturaJugador){
 	}
 }
 
-void manejar_excepcion(uint8_t codigoDeError){
+void manejar_excepcion(uint32_t codigoDeError, 
+uint32_t stack3,
+uint32_t stack2,
+uint32_t stack1,
+uint32_t stack0,
+uint32_t ebx,
+uint32_t ecx,
+uint32_t edx,
+uint32_t esi,
+uint32_t edi,
+uint32_t ds,
+uint32_t es,
+uint32_t fs,
+uint32_t gs,
+uint32_t cr0,
+uint32_t cr2,
+uint32_t cr3,
+uint32_t cr4,
+uint32_t esp,
+uint32_t ss,
+uint32_t eflags,
+uint32_t cs,
+uint32_t eip,
+uint32_t eax,
+uint32_t ebp){
 	//print_exception(codigoDeError);
 	if(quantum < 6){
 		//significa que la exepcion sucedio dentro de una tarea.
@@ -263,77 +287,102 @@ void manejar_excepcion(uint8_t codigoDeError){
 			int columnaIzquierda = 20;
 			int columnaDerecha = 40;
 			int alturaBase = 7;
+			int offsetAltura = 0;
 
 			//columna izquierda
 
 			print("eax: ", columnaIzquierda ,alturaBase, 0x0F);
-			print_hex(reax(), 8, columnaIzquierda + 5, alturaBase, 0x0F);
+			print_hex(eax, 8, columnaIzquierda + 5, alturaBase, 0x0F);
 
+			offsetAltura += 2;
 			print("ebx: ", columnaIzquierda ,alturaBase + 2, 0x0F);
-			print_hex(rebx(), 8, columnaIzquierda + 5, alturaBase + 2, 0x0F);
+			print_hex(ebx, 8, columnaIzquierda + 5, alturaBase + offsetAltura, 0x0F);
 
-			print("ecx: ", columnaIzquierda ,alturaBase + 4, 0x0F);
-			print_hex(recx(), 8, columnaIzquierda + 5, alturaBase + 4, 0x0F);
+			offsetAltura += 2;
+			print("ecx: ", columnaIzquierda ,alturaBase + offsetAltura, 0x0F);
+			print_hex(ecx, 8, columnaIzquierda + 5, alturaBase + offsetAltura, 0x0F);
 
-			print("edx: ", columnaIzquierda ,alturaBase + 6, 0x0F);
-			print_hex(redx(), 8, columnaIzquierda + 5, alturaBase + 6, 0x0F);
+			offsetAltura += 2;
+			print("edx: ", columnaIzquierda ,alturaBase + offsetAltura, 0x0F);
+			print_hex(edx, 8, columnaIzquierda + 5, alturaBase + offsetAltura, 0x0F);
 
-			print("esi: ", columnaIzquierda ,alturaBase + 8, 0x0F);
-			print_hex(resi(), 8, columnaIzquierda + 5, alturaBase + 8, 0x0F);
+			offsetAltura += 2;
+			print("esi: ", columnaIzquierda ,alturaBase + offsetAltura, 0x0F);
+			print_hex(esi, 8, columnaIzquierda + 5, alturaBase + offsetAltura, 0x0F);
 
-			print("edi: ", columnaIzquierda ,alturaBase + 10, 0x0F);
-			print_hex(redi(), 8, columnaIzquierda + 5, alturaBase + 10, 0x0F);
+			offsetAltura += 2;
+			print("edi: ", columnaIzquierda ,alturaBase + offsetAltura, 0x0F);
+			print_hex(edi, 8, columnaIzquierda + 5, alturaBase + offsetAltura, 0x0F);
 
-			print("ebp: ", columnaIzquierda ,alturaBase + 12, 0x0F);
-			print_hex(rebp(), 8, columnaIzquierda + 5, alturaBase + 12, 0x0F);
+			offsetAltura += 2;
+			print("ebp: ", columnaIzquierda ,alturaBase + offsetAltura, 0x0F);
+			print_hex(ebp, 8, columnaIzquierda + 5, alturaBase + offsetAltura, 0x0F);
 
-			print("esp: ", columnaIzquierda ,alturaBase + 14, 0x0F);
-			print_hex(resp(), 8, columnaIzquierda + 5, alturaBase + 14, 0x0F);
+			offsetAltura += 2;
+			print("esp: ", columnaIzquierda ,alturaBase + offsetAltura, 0x0F);
+			print_hex(esp, 8, columnaIzquierda + 5, alturaBase + offsetAltura, 0x0F);
 
-			print("eip: ", columnaIzquierda ,alturaBase + 16, 0x0F);
-			print_hex(0, 8, columnaIzquierda + 5, alturaBase + 16, 0x0F);
+			offsetAltura += 2;
+			print("eip: ", columnaIzquierda ,alturaBase + offsetAltura, 0x0F);
+			print_hex(eip, 8, columnaIzquierda + 5, alturaBase + offsetAltura, 0x0F);
 
-			print("ecx: ", columnaIzquierda ,alturaBase + 18, 0x0F);
-			print_hex(1, 8, columnaIzquierda + 5, alturaBase + 18, 0x0F);
+			offsetAltura += 2;
+			print("cs : ", columnaIzquierda ,alturaBase + offsetAltura, 0x0F);
+			print_hex(cs, 4, columnaIzquierda + 5, alturaBase + offsetAltura, 0x0F );
 
-			print("cs : ", columnaIzquierda ,alturaBase + 20, 0x0F);
-			print_hex(rcs(), 4, columnaIzquierda + 5, alturaBase + 20, 0x0F );
+			offsetAltura += 2;
+			print("ds : ", columnaIzquierda, alturaBase + offsetAltura, 0x0F);
+			print_hex(ds, 4, columnaIzquierda + 5, alturaBase + offsetAltura, 0x0F );
 
-			print("ds : ", columnaIzquierda, alturaBase + 22, 0x0F);
-			print_hex(rds(), 4, columnaIzquierda + 5, alturaBase + 22, 0x0F );
+			offsetAltura += 2;
+			print("es : ", columnaIzquierda, alturaBase + offsetAltura, 0x0F);
+			print_hex(es, 4, columnaIzquierda + 5, alturaBase + offsetAltura, 0x0F );
 
-			print("ds : ", columnaIzquierda, alturaBase + 24, 0x0F);
-			print_hex(rds(), 4, columnaIzquierda + 5, alturaBase + 24, 0x0F );
+			offsetAltura += 2;
+			print("fs : ", columnaIzquierda, alturaBase + offsetAltura, 0x0F);
+			print_hex(fs, 4, columnaIzquierda + 5, alturaBase + offsetAltura, 0x0F );
 
-			print("es : ", columnaIzquierda, alturaBase + 26, 0x0F);
-			print_hex(res(), 4, columnaIzquierda + 5, alturaBase + 26, 0x0F );
-
-			print("fs : ", columnaIzquierda, alturaBase + 28, 0x0F);
-			print_hex(rfs(), 4, columnaIzquierda + 5, alturaBase + 28, 0x0F );
-
-			print("gs : ", columnaIzquierda, alturaBase + 30, 0x0F);
-			print_hex(rgs(), 4, columnaIzquierda + 5, alturaBase + 30, 0x0F );
-
+			offsetAltura += 2;
+			print("gs : ", columnaIzquierda, alturaBase + offsetAltura, 0x0F);
+			print_hex(gs, 4, columnaIzquierda + 5, alturaBase + offsetAltura, 0x0F );
 
 			//columna derecha
+
+			offsetAltura = 0;
 			print("ss : ", columnaDerecha, alturaBase, 0x0F);
-			print_hex(rss(), 4, columnaDerecha + 5, alturaBase, 0x0F );
+			print_hex(ss, 4, columnaDerecha + 5, alturaBase, 0x0F );
 			
+			offsetAltura += 2;
 			print("cr0: ", columnaDerecha, alturaBase + 2, 0x0F);
-			print_hex(rcr0(), 8, columnaDerecha + 5, alturaBase + 2, 0x0F );
+			print_hex(cr0, 8, columnaDerecha + 5, alturaBase + offsetAltura, 0x0F );
 			
-			//TODO: cant get CR1 no tengo idea de por que.
-			// print("cr1: ", columnaDerecha, alturaBase + 4, 0x0F);
-			// print_hex(rcr1(), 8, columnaDerecha + 5, alturaBase + 4, 0x0F );
+			offsetAltura += 2;
+			print("cr2: ", columnaDerecha, alturaBase + offsetAltura, 0x0F);
+			print_hex(cr2, 8, columnaDerecha + 5, alturaBase + offsetAltura, 0x0F );
 			
-			print("cr2: ", columnaDerecha, alturaBase + 6, 0x0F);
-			print_hex(rcr2(), 8, columnaDerecha + 5, alturaBase + 6, 0x0F );
+			offsetAltura += 2;
+			print("cr3: ", columnaDerecha, alturaBase + offsetAltura, 0x0F);
+			print_hex(cr3, 8, columnaDerecha + 5, alturaBase + offsetAltura, 0x0F );
 			
-			print("cr3: ", columnaDerecha, alturaBase + 8, 0x0F);
-			print_hex(rcr3(), 8, columnaDerecha + 5, alturaBase + 8, 0x0F );
+			offsetAltura += 2;
+			print("cr4: ", columnaDerecha, alturaBase + offsetAltura, 0x0F);
+			print_hex(cr4, 8, columnaDerecha + 5, alturaBase + offsetAltura, 0x0F );
+
+			offsetAltura += 2;
+			print("eflags: ", columnaDerecha, alturaBase + offsetAltura, 0x0F);
+			print_hex(eflags, 8, columnaDerecha + 8, alturaBase + offsetAltura, 0x0F );
+
+			offsetAltura += 6;
+			print("stack: ", columnaDerecha, alturaBase + offsetAltura, 0x0F);
+			offsetAltura += 2;
+			print_hex(stack0, 8, columnaDerecha, alturaBase + offsetAltura, 0x0F );
+			offsetAltura += 2;
+			print_hex(stack1, 8, columnaDerecha, alturaBase + offsetAltura, 0x0F );
+			offsetAltura += 2;
+			print_hex(stack2, 8, columnaDerecha, alturaBase + offsetAltura, 0x0F );
+			offsetAltura += 2;
+			print_hex(stack3, 8, columnaDerecha, alturaBase + offsetAltura, 0x0F );
 			
-			print("cr4: ", columnaDerecha, alturaBase + 10, 0x0F);
-			print_hex(rcr4(), 8, columnaDerecha + 5, alturaBase + 10, 0x0F );
 		}
 		matarTarea(quantum);
 		saltarATarea(GDT_TSS_IDLE << 3);
