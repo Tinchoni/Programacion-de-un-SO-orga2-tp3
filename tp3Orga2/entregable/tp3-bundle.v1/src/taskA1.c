@@ -17,7 +17,7 @@ void task() {
     while(1) { 
         __asm __volatile("mov $1, %%eax":::"eax");
         
-        if(i == 500002){
+        if(i == 5000002){
             int x = i - i;
             char* a = (char*) x;
             a[0] = 'a';

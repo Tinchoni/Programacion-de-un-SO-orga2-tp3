@@ -33,8 +33,6 @@ extern write_message
 global _isr%1
 
 _isr%1:
-    xchg bx, bx
-
     ;uint32_t ebp,
     push ebp
 
@@ -64,7 +62,6 @@ _isr%1:
     mov eax, [ebp + 16]
     push eax
 
-    xchg bx, bx
 
     ;uint32_t cr4,
     mov eax, cr4
